@@ -217,7 +217,7 @@ export default function SecurityStandards({ result }: SecurityStandardsProps) {
         {!showSCSVSDetails && (
           <div className="card bg-gray-50">
             <p className="text-center text-gray-600">
-              Click "Show Details" to view all {result.scsvCompliance.checklist.length} SCSVS v2 controls by category
+              Click &ldquo;Show Details&rdquo; to view all {result.scsvCompliance.checklist.length} SCSVS v2 controls by category
             </p>
           </div>
         )}

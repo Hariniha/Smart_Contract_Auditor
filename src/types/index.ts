@@ -16,7 +16,7 @@ export interface Vulnerability {
   exploitationScenario: string;
   recommendation: string;
   references: string[];
-  detectionMethod: 'static' | 'dynamic' | 'ai';
+  detectionMethod: 'static' | 'dynamic' | 'ai' | 'hybrid';
   confidence: 'High' | 'Medium' | 'Low';
 }
 

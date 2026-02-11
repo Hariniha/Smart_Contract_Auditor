@@ -109,7 +109,7 @@ export default function HomePage() {
                 href="/analyzer" 
                 className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 text-center"
               >
-                Try it Now - It's Free
+                Try it Now - It&apos;s Free
               </Link>
               
             </div>
@@ -456,7 +456,7 @@ export default function HomePage() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
-              What's Included in Your Report
+              What&apos;s Included in Your Report
             </h2>
             <p className="text-lg text-gray-600">
               Comprehensive security analysis documentation with all the details you need
