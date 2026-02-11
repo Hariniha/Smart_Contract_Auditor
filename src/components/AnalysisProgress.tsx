@@ -7,12 +7,12 @@ interface AnalysisProgressProps {
 export default function AnalysisProgress({ progress }: AnalysisProgressProps) {
   const stages = [
     { label: 'Parsing contract', threshold: 15 },
-    { label: 'Static analysis - Pattern detection', threshold: 30 },
-    { label: 'Static analysis - SWC Registry check', threshold: 45 },
-    { label: 'Dynamic analysis - AI reasoning', threshold: 60 },
-    { label: 'Dynamic analysis - Logic evaluation', threshold: 75 },
-    { label: 'Standards compliance check', threshold: 90 },
-    { label: 'Generating comprehensive report', threshold: 95 }
+    { label: 'Static analysis - Pattern detection', threshold: 35 },
+    { label: 'Static analysis - SWC Registry check', threshold: 50 },
+    { label: 'Dynamic analysis - AI reasoning', threshold: 65 },
+    { label: 'Dynamic analysis - Logic evaluation', threshold: 80 },
+    { label: 'Standards compliance check', threshold: 92 },
+    { label: 'Generating comprehensive report', threshold: 100 }
   ];
 
   const currentStage = stages.find(s => progress < s.threshold) || stages[stages.length - 1];
@@ -29,6 +29,11 @@ export default function AnalysisProgress({ progress }: AnalysisProgressProps) {
           style={{ width: `${progress}%` }}
         />
       </div>
+      {progress === 100 && (
+        <div className="mt-2 text-xs text-emerald-600 font-medium">
+          ✓ Analysis completed successfully!
+        </div>
+      )}
     </div>
   );
 }

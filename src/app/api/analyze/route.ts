@@ -22,11 +22,13 @@ export async function POST(request: NextRequest) {
     const startTime = Date.now();
     const analysisId = uuidv4();
     let allVulnerabilities: Vulnerability[] = [];
+    let detectedLanguage: string = 'solidity';
 
     // Static Analysis
     if (!analysisTypes || analysisTypes.includes('static')) {
-      const staticResult = await performStaticAnalysis(contractCode);
+      const staticResult = await performStaticAnalysis(contractCode, fileName);
       allVulnerabilities = [...allVulnerabilities, ...staticResult.vulnerabilities];
+      detectedLanguage = staticResult.language || 'solidity';
     }
 
     // AI Enhancement for top vulnerabilities
@@ -140,6 +142,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
       contractCode,
       fileName: fileName || 'contract.sol',
+      language: detectedLanguage,
       securityScore,
       riskLevel,
       vulnerabilities: allVulnerabilities,

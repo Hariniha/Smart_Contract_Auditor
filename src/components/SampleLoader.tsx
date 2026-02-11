@@ -2,6 +2,7 @@
 
 import { FileCode } from 'lucide-react';
 import { getAllSamples } from '@/lib/sample-contracts';
+import { detectLanguage, getLanguageFileExtension } from '@/lib/language-detector';
 
 interface SampleLoaderProps {
   onLoad: (code: string, name: string) => void;
@@ -9,6 +10,12 @@ interface SampleLoaderProps {
 
 export default function SampleLoader({ onLoad }: SampleLoaderProps) {
   const samples = getAllSamples();
+
+  const getFileNameWithExtension = (code: string, name: string) => {
+    const detected = detectLanguage(code);
+    const extension = getLanguageFileExtension(detected.language);
+    return name + extension;
+  };
 
   return (
     <div className="card">
@@ -20,7 +27,7 @@ export default function SampleLoader({ onLoad }: SampleLoaderProps) {
         {samples.map((sample) => (
           <button
             key={sample.key}
-            onClick={() => onLoad(sample.code, sample.name + '.sol')}
+            onClick={() => onLoad(sample.code, getFileNameWithExtension(sample.code, sample.name))}
             className="w-full text-left p-3 rounded-lg bg-gray-50 hover:bg-gray-100 
                      border border-gray-200 hover:border-gray-300 transition-all"
           >

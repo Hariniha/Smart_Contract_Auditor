@@ -25,6 +25,7 @@ export interface AnalysisResult {
   timestamp: string;
   contractCode: string;
   fileName: string;
+  language?: string;
   securityScore: number;
   riskLevel: 'Critical' | 'High' | 'Medium' | 'Low' | 'Secure';
   vulnerabilities: Vulnerability[];

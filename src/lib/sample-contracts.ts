@@ -160,6 +160,203 @@ contract SecureToken {
     }
 }`,
     description: 'Well-structured ERC20 token following best practices'
+  },
+
+  vyper_vulnerable_bank: {
+    name: 'Vyper Vulnerable Bank',
+    code: `# @version ^0.3.7
+
+balances: public(HashMap[address, uint256])
+
+@external
+@payable
+def deposit():
+    self.balances[msg.sender] += msg.value
+
+@external
+def withdraw(amount: uint256):
+    assert self.balances[msg.sender] >= amount, "Insufficient balance"
+    
+    # Vulnerability: External call before state update
+    send(msg.sender, amount)
+    
+    self.balances[msg.sender] -= amount
+
+@external
+@view
+def get_balance() -> uint256:
+    return self.balances[msg.sender]`,
+    description: 'Vyper contract with reentrancy vulnerability'
+  },
+
+  vyper_secure_token: {
+    name: 'Vyper Secure Token',
+    code: `# @version ^0.3.7
+
+name: public(String[32])
+symbol: public(String[32])
+decimals: public(uint8)
+total_supply: public(uint256)
+owner: public(address)
+balances: HashMap[address, uint256]
+allowances: HashMap[address, HashMap[address, uint256]]
+
+event Transfer:
+    sender: indexed(address)
+    receiver: indexed(address)
+    amount: uint256
+
+event Approval:
+    owner: indexed(address)
+    spender: indexed(address)
+    amount: uint256
+
+@external
+def __init__(initial_supply: uint256):
+    self.name = "VyperToken"
+    self.symbol = "VTK"
+    self.decimals = 18
+    self.owner = msg.sender
+    self.total_supply = initial_supply * 10 ** convert(self.decimals, uint256)
+    self.balances[msg.sender] = self.total_supply
+    log Transfer(empty(address), msg.sender, self.total_supply)
+
+@external
+@view
+def balance_of(account: address) -> uint256:
+    return self.balances[account]
+
+@external
+def transfer(to: address, amount: uint256) -> bool:
+    assert to != empty(address), "Invalid address"
+    assert self.balances[msg.sender] >= amount, "Insufficient balance"
+    
+    self.balances[msg.sender] -= amount
+    self.balances[to] += amount
+    
+    log Transfer(msg.sender, to, amount)
+    return True`,
+    description: 'Secure Vyper token implementation'
+  },
+
+  cairo_vulnerable_storage: {
+    name: 'Cairo Vulnerable Storage',
+    code: `#[starknet::contract]
+mod VulnerableStorage {
+    use starknet::ContractAddress;
+    use starknet::get_caller_address;
+
+    #[storage]
+    struct Storage {
+        owner: ContractAddress,
+        balances: LegacyMap<ContractAddress, u256>,
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, initial_owner: ContractAddress) {
+        self.owner.write(initial_owner);
+    }
+
+    #[external(v0)]
+    fn set_balance(ref self: ContractState, user: ContractAddress, amount: u256) {
+        // Vulnerability: No access control
+        self.balances.write(user, amount);
+    }
+
+    #[external(v0)]
+    fn withdraw(ref self: ContractState, amount: u256) {
+        let caller = get_caller_address();
+        let balance = self.balances.read(caller);
+        
+        // Vulnerability: No zero check, no access control
+        self.balances.write(caller, balance - amount);
+    }
+
+    #[external(v0)]
+    fn get_balance(self: @ContractState, user: ContractAddress) -> u256 {
+        self.balances.read(user)
+    }
+}`,
+    description: 'Cairo contract with missing access controls'
+  },
+
+  cairo_secure_token: {
+    name: 'Cairo Secure Token',
+    code: `#[starknet::contract]
+mod SecureToken {
+    use starknet::ContractAddress;
+    use starknet::get_caller_address;
+    use starknet::contract_address_const;
+
+    #[storage]
+    struct Storage {
+        name: felt252,
+        symbol: felt252,
+        decimals: u8,
+        total_supply: u256,
+        owner: ContractAddress,
+        balances: LegacyMap<ContractAddress, u256>,
+        allowances: LegacyMap<(ContractAddress, ContractAddress), u256>,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        Transfer: Transfer,
+        Approval: Approval,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Transfer {
+        from: ContractAddress,
+        to: ContractAddress,
+        value: u256,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Approval {
+        owner: ContractAddress,
+        spender: ContractAddress,
+        value: u256,
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, initial_supply: u256) {
+        self.name.write('CairoToken');
+        self.symbol.write('CTK');
+        self.decimals.write(18);
+        self.owner.write(get_caller_address());
+        self.total_supply.write(initial_supply);
+        self.balances.write(get_caller_address(), initial_supply);
+        
+        self.emit(Transfer {
+            from: contract_address_const::<0>(),
+            to: get_caller_address(),
+            value: initial_supply
+        });
+    }
+
+    #[external(v0)]
+    fn transfer(ref self: ContractState, to: ContractAddress, amount: u256) -> bool {
+        let caller = get_caller_address();
+        assert(!to.is_zero(), 'Invalid address');
+        
+        let caller_balance = self.balances.read(caller);
+        assert(caller_balance >= amount, 'Insufficient balance');
+        
+        self.balances.write(caller, caller_balance - amount);
+        self.balances.write(to, self.balances.read(to) + amount);
+        
+        self.emit(Transfer { from: caller, to: to, value: amount });
+        true
+    }
+
+    #[external(v0)]
+    fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
+        self.balances.read(account)
+    }
+}`,
+    description: 'Secure Cairo token with proper checks'
   }
 };
 

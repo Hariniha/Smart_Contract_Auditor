@@ -1,21 +1,32 @@
 # 🛡️ SmartAudit AI - AI-Powered Smart Contract Auditor
 
-A comprehensive web application that performs dual-layer security analysis of Solidity smart contracts using static pattern detection and dynamic AI-powered analysis with industry-standard security classifications.
+A comprehensive web application that performs dual-layer security analysis of smart contracts (Solidity, Vyper, Cairo) using static pattern detection and dynamic AI-powered analysis with industry-standard security classifications.
 
 ## 🌟 Features
 
+### Multi-Language Support
+- **Solidity**: Full support for Ethereum smart contracts (.sol)
+- **Vyper**: Python-like smart contract language analysis (.vy)
+- **Cairo**: StarkNet smart contract security auditing (.cairo)
+- **Auto-Detection**: Automatically detects contract language from code or file extension
+
 ### Dual-Layer Security Analysis
-- **Static Analysis**: Fast pattern-based vulnerability detection using SWC Registry and known attack vectors
+- **Static Analysis**: Fast pattern-based vulnerability detection using SWC Registry and language-specific patterns
 - **Dynamic Analysis (AI-Powered)**: Advanced AI reasoning to understand complex business logic, state transitions, and edge cases
 - **Standards Compliance**: SCSVS v2 framework validation and EthTrust security level assessment
 - **Smart Reports**: Comprehensive vulnerability reports with actionable recommendations and risk scoring
 
 ### Security Standards
-- **SWC Registry**: 35+ Smart Contract Weakness patterns with CWE mappings
+- **SWC Registry**: 35+ Smart Contract Weakness patterns with CWE mappings (Solidity)
+- **VSR (Vyper Security Registry)**: 15 Vyper-specific vulnerability patterns with official documentation
+- **CSR (Cairo Security Registry)**: 20 Cairo/StarkNet security patterns with OpenZeppelin references
 - **SCSVS v2**: 50+ Security Verification Standard controls
 - **EthTrust**: 5-level security classification system
+- **Language-Specific Patterns**: Dedicated vulnerability detection for Solidity, Vyper, and Cairo
 
 ### Key Features
+- ✅ Multi-language support (Solidity, Vyper, Cairo)
+- ✅ Automatic language detection
 - ✅ Real-time code analysis with Monaco Editor
 - ✅ Comprehensive vulnerability detection with line numbers
 - ✅ AI-powered explanations and recommendations (Groq + Llama 3.3)
@@ -23,7 +34,7 @@ A comprehensive web application that performs dual-layer security analysis of So
 - ✅ SCSVS v2 compliance checking
 - ✅ EthTrust security level assessment
 - ✅ Multiple export formats (PDF, JSON, Text)
-- ✅ Sample vulnerable contracts for testing
+- ✅ Sample contracts for all supported languages
 - ✅ Contract naming for organized reports
 - ✅ Light theme UI with smooth animations
 - ✅ Character and line counter
@@ -80,13 +91,20 @@ src/
 │   ├── SampleLoader.tsx        # Sample contracts loader
 │   └── AnalysisProgress.tsx    # Progress indicator
 ├── lib/
-│   ├── swc-registry.ts         # SWC weakness definitions
+│   ├── swc-registry.ts         # SWC weakness definitions (Solidity)
+│   ├── vyper-security-registry.ts # VSR definitions (Vyper)
+│   ├── cairo-security-registry.ts # CSR definitions (Cairo)
 │   ├── scsvs-v2.ts             # SCSVS v2 controls
 │   ├── ethtrust.ts             # EthTrust levels
 │   ├── groq-service.ts         # Groq API integration
-│   ├── static-analyzer.ts      # Static analysis engine
-│   ├── vulnerability-patterns.ts # Detection patterns
-│   ├── sample-contracts.ts     # Example contracts
+│   ├── static-analyzer.ts      # Multi-language analyzer router
+│   ├── vyper-analyzer.ts       # Vyper analysis engine
+│   ├── cairo-analyzer.ts       # Cairo analysis engine
+│   ├── language-detector.ts    # Auto-detect contract language
+│   ├── vulnerability-patterns.ts # Solidity patterns
+│   ├── vyper-patterns.ts       # Vyper patterns
+│   ├── cairo-patterns.ts       # Cairo patterns
+│   ├── sample-contracts.ts     # Example contracts (all languages)
 │   ├── pdf-generator.ts        # PDF report generation
 │   ├── doc-generator.ts        # Text report generation
 │   └── utils.ts                # Utility functions
@@ -116,13 +134,58 @@ src/
 ## 📊 Security Standards
 
 ### SWC (Smart Contract Weakness) Registry
-35+ weakness patterns including:
+35+ weakness patterns for Solidity including:
 - SWC-107: Reentrancy
 - SWC-105: Unprotected Ether Withdrawal
 - SWC-106: Unprotected SELFDESTRUCT
 - SWC-101: Integer Overflow/Underflow
 - SWC-115: Authorization through tx.origin
 - And 30+ more patterns...
+
+### VSR (Vyper Security Registry)
+15 Vyper-specific vulnerability patterns:
+- VSR-001: Reentrancy in Vyper contracts
+- VSR-002: Unchecked external calls (send/raw_call)
+- VSR-003: Integer overflow and arithmetic issues
+- VSR-004: tx.origin authentication
+- VSR-005: Missing access control decorators
+- VSR-006: Zero address validation
+- VSR-007: Timestamp dependence
+- VSR-008: Dangerous assert usage
+- VSR-009: Unsafe delegatecall via raw_call
+- VSR-010: Unprotected selfdestruct
+- VSR-011: Uninitialized storage variables
+- VSR-012: State race conditions
+- VSR-013: Missing type annotations
+- VSR-014: Missing event emissions
+- VSR-015: Outdated compiler version
+- **References**: Official Vyper documentation (docs.vyperlang.org)
+- **CWE Mappings**: Industry-standard weakness enumeration
+
+### CSR (Cairo Security Registry)
+20 Cairo/StarkNet-specific security patterns:
+- CSR-001: Reentrancy in Cairo contracts
+- CSR-002: Unchecked external calls
+- CSR-003: felt252 overflow vulnerabilities
+- CSR-004: Missing access control
+- CSR-005: Zero address checks
+- CSR-006: Timestamp manipulation
+- CSR-007: Storage collision risks
+- CSR-008: Unused return values
+- CSR-009: Dangerous library_call usage
+- CSR-010: Unvalidated input parameters
+- CSR-011: Constructor validation issues
+- CSR-012: Array bounds checking
+- CSR-013: Unchecked arithmetic operations
+- CSR-014: Missing event emissions
+- CSR-015: Cairo version compatibility
+- CSR-016: Storage pointer manipulation
+- CSR-017: Incorrect type conversions
+- CSR-018: Gas optimization issues
+- CSR-019: Cross-contract call vulnerabilities
+- CSR-020: Proxy pattern security
+- **References**: StarkNet docs and OpenZeppelin Cairo contracts
+- **CWE Mappings**: Comprehensive weakness classification
 
 ### SCSVS v2 Framework
 50+ security controls across categories:
@@ -139,21 +202,30 @@ src/
 ### EthTrust Security Levels
 - **Level 1**: Critical - Unsafe (Critical vulnerabilities)
 - **Level 2**: High Risk (High severity issues)
-- **Level 3**: Medium Risk (Medium issues only)
-- **Level 4**: Low Risk (Low severity issues)
-- **Level 5**: Secure (No significant vulnerabilities)
-
+- **Level 3**: Medium Risk (Medium issues only, Vyper, or Cairo code into the editor
+- **Upload File**: Upload a `.sol`, `.vy`, or `.cairo` file from your computer
+- **Load Sample**: Test with pre-loaded contracts in all supported languages
+- **Name Your Contract**: Add a custom name for organized reports
+- **Auto-Detection**: Language is automatically detected from code or file extension
 ## 🎯 How to Use
 
 ### Step 1: Upload Your Contract
 - **Paste Code**: Directly paste your Solidity code into the editor
 - **Upload File**: Upload a `.sol` file from your computer
 - **Load Sample**: Test with pre-loaded vulnerable contracts
-- **Name Your Contract**: Add a custom name for organized reports
+6 pre-loaded examples for testing:
 
-### Step 2: View Dashboard & Results
-- Analysis runs automatically and displays comprehensive results
-- Interactive dashboard with 4 tabs:
+**Solidity:**
+1. **Vulnerable Bank**: Classic reentrancy vulnerability (SWC-107)
+2. **Unprotected Contract**: Missing access controls (SWC-105)
+
+**Vyper:**
+3. **Vulnerable Vyper Wallet**: Unchecked send and access control issues
+4. **Secure Vyper Token**: Best practices with proper decorators
+
+**Cairo:**
+5. **Unsafe Cairo Vault**: Reentrancy and missing validation
+6. **Secure Cairo Contract**: Proper patterns and safety checks
   - **Overview**: Security score, risk level, EthTrust level, key metrics
   - **Vulnerabilities**: Detailed list with severity, line numbers, code snippets
   - **Security Standards**: SWC Registry and SCSVS v2 compliance
@@ -170,7 +242,11 @@ Click the download button to export in multiple formats:
 ### Vulnerability Details
 - Complete list of detected vulnerabilities
 - Severity levels (Critical, High, Medium, Low)
-- Exact line numbers and code snippets
+- Eecurity classification mappings:
+  - SWC IDs for Solidity
+  - VSR IDs for Vyper (with docs.vyperlang.org references)
+  - CSR IDs for Cairo (with StarkNet/OpenZeppelin references)
+- CWE mappings for all languagee snippets
 - SWC classification mappings
 - AI-enhanced descriptions and explanations
 
@@ -255,9 +331,13 @@ Analyzes smart contract code and returns comprehensive security report.
     "Fix critical reentrancy in withdraw function",
     "Add access control modifiers",
     "..."
-  ]
-}
-```
+  ]Multi-Registry Support**: 
+  - SWC Registry (35+ Solidity patterns)
+  - VSR (15 Vyper patterns with official docs)
+  - CSR (20 Cairo/StarkNet patterns)
+- **Fast Execution**: Instant results
+- **Known Attack Vectors**: Reentrancy, access control, arithmetic issues, etc.
+- **Language-Specific**: Uses appropriate registry based on detected language
 
 ## 📈 Analysis Features
 
@@ -339,23 +419,34 @@ npm run lint
 5. **Security Standards**: SWC, SCSVS v2, EthTrust information
 6. **Report Contents**: What's included in downloaded reports
 7. **Footer**: Links and resources
-
-## 📝 License
-
-MIT License - Feel free to use for your projects
-
-## 🤝 Contributing
-
-Contributions welcome! Feel free to:
-- Add new vulnerability patterns to detection engine
+s
+- Contribute to VSR (Vyper Security Registry) or CSR (Cairo Security Registry)
 - Improve AI analysis prompts
 - Enhance UI/UX components
-- Add more sample contracts
+- Add more sample contracts in any supported language
 - Improve report generation
 - Expand documentation
+- Add support for new smart contract languages
 
+Contributions welcome! Feel free to:
+- Ax] Multi-language support (Solidity, Vyper, Cairo)
+- [x] Vyper Security Registry (VSR) with 15 patterns
+- [x] Cairo Security Registry (CSR) with 20 patterns
+- [x] Automatic language detection
+- [ ] GitHub repository integration
+- [ ] Analysis mode selector (Static only, Dynamic only, Both)
+- [ ] Full AI analysis for all vulnerabilities
+- [ ] Historical analysis tracking
+- [ ] Comparison reports
+- [ ] Custom rule configuration
+- [ ] Gas optimization suggestions
+- [ ] Formal verification integ
 ## 🚧 Roadmap
-
+and comprehensive security registries:**
+- **SWC Registry** for Solidity
+- **VSR (Vyper Security Registry)** for Vyper
+- **CSR (Cairo Security Registry)** for Cairo/StarkNet
+- **SCSVS v2** and **EthTrust** Standards
 - [ ] GitHub repository integration
 - [ ] Multi-language support (Vyper, Rust, Move)
 - [ ] Analysis mode selector (Static only, Dynamic only, Both)

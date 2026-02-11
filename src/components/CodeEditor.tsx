@@ -9,17 +9,31 @@ interface CodeEditorProps {
   height?: string;
 }
 
+// Map smart contract languages to Monaco editor languages
+function getMonacoLanguage(language: string = 'sol'): string {
+  const languageMap: Record<string, string> = {
+    'sol': 'sol',
+    'solidity': 'sol',
+    'vy': 'python',
+    'vyper': 'python',
+    'cairo': 'rust',
+  };
+  return languageMap[language.toLowerCase()] || 'sol';
+}
+
 export default function CodeEditor({ 
   value, 
   onChange, 
   language = 'sol',
   height = '500px' 
 }: CodeEditorProps) {
+  const monacoLang = getMonacoLanguage(language);
+  
   return (
     <div className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white">
       <Editor
         height={height}
-        defaultLanguage={language}
+        language={monacoLang}
         value={value}
         onChange={(value) => onChange(value || '')}
         theme="vs-dark"

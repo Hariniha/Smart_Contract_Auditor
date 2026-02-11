@@ -300,7 +300,7 @@ export default function HomePage() {
                 {
                   step: '01',
                   title: 'Upload Your Contract',
-                  description: 'Paste your Solidity code directly, upload a .sol file, or connect your GitHub repository for analysis',
+                  description: 'Paste your Solidity, Vyper, or Cairo code directly, upload smart contract files (.sol, .vy, .cairo), or connect your GitHub repository for analysis',
                   icon: <FileSearch className="w-10 h-10 text-emerald-600" />
                 },
                 {

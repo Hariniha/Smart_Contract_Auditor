@@ -50,7 +50,14 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2 text-gray-900">Analysis Results</h1>
-            <p className="text-sm text-gray-600">{result.fileName}</p>
+            <div className="flex items-center gap-3">
+              <p className="text-sm text-gray-600">{result.fileName}</p>
+              {result.language && (
+                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 border border-emerald-300">
+                  {result.language.charAt(0).toUpperCase() + result.language.slice(1)}
+                </span>
+              )}
+            </div>
           </div>
           <div className="flex items-center space-x-3">
             <button

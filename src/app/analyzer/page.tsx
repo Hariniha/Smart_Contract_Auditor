@@ -27,10 +27,19 @@ export default function AnalyzerPage() {
 
     setIsAnalyzing(true);
     setError(null);
-    setProgress(10);
+    setProgress(0);
 
     try {
-      setProgress(30);
+      // Stage 1: Parsing contract
+      setProgress(10);
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Stage 2: Static analysis - Pattern detection
+      setProgress(25);
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Stage 3: Static analysis - SWC Registry check
+      setProgress(40);
 
       const response = await fetch('/api/analyze', {
         method: 'POST',
@@ -43,13 +52,28 @@ export default function AnalyzerPage() {
         })
       });
 
-      setProgress(80);
+      // Stage 4: Dynamic analysis - AI reasoning
+      setProgress(55);
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      // Stage 5: Dynamic analysis - Logic evaluation
+      setProgress(70);
 
       if (!response.ok) {
         throw new Error('Analysis failed');
       }
 
       const result = await response.json();
+      
+      // Stage 6: Standards compliance check
+      setProgress(85);
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Stage 7: Generating comprehensive report
+      setProgress(95);
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Complete
       setProgress(100);
       setAnalysisResult(result);
     } catch (err) {
@@ -142,7 +166,7 @@ export default function AnalyzerPage() {
                     type="text"
                     value={fileName}
                     onChange={(e) => setFileName(e.target.value)}
-                    placeholder="contract.sol"
+                    placeholder="contract.sol / contract.vy / contract.cairo"
                     className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-emerald-500 text-gray-900"
                   />
                 </div>
@@ -231,12 +255,12 @@ contract UserAuth {
                       <span className="text-gray-500"> or drag and drop</span>
                       <input
                         type="file"
-                        accept=".sol"
+                        accept=".sol,.vy,.cairo"
                         onChange={handleFileUpload}
                         className="hidden"
                       />
                     </label>
-                    <p className="text-xs text-gray-500 mt-2">Solidity files (.sol) only</p>
+                    <p className="text-xs text-gray-500 mt-2">Solidity (.sol), Vyper (.vy), or Cairo (.cairo) files</p>
                   </div>
                 )}
 

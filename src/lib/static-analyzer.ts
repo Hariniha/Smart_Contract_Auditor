@@ -1,10 +1,13 @@
-// Static Analysis Service
+// Multi-Language Static Analysis Service
 
 import * as parser from '@solidity-parser/parser';
 import { Vulnerability } from '@/types';
 import { VULNERABILITY_PATTERNS } from './vulnerability-patterns';
 import { getSWCById } from './swc-registry';
 import { v4 as uuidv4 } from 'uuid';
+import { detectLanguage, SmartContractLanguage } from './language-detector';
+import { analyzeVyperContract } from './vyper-analyzer';
+import { analyzeCairoContract } from './cairo-analyzer';
 
 export interface StaticAnalysisResult {
   vulnerabilities: Vulnerability[];
@@ -14,9 +17,47 @@ export interface StaticAnalysisResult {
     stateVariables: string[];
     modifiers: string[];
   };
+  language?: SmartContractLanguage;
 }
 
-export async function performStaticAnalysis(contractCode: string): Promise<StaticAnalysisResult> {
+export async function performStaticAnalysis(contractCode: string, fileName?: string): Promise<StaticAnalysisResult> {
+  // Detect the language of the contract
+  const langDetection = detectLanguage(contractCode, fileName);
+  
+  // Route to appropriate analyzer based on language
+  if (langDetection.language === 'vyper') {
+    const vyperResult = await analyzeVyperContract(contractCode);
+    return {
+      vulnerabilities: vyperResult.vulnerabilities,
+      contractInfo: {
+        name: vyperResult.contractInfo.name,
+        functions: vyperResult.contractInfo.functions,
+        stateVariables: vyperResult.contractInfo.storageVariables,
+        modifiers: [] // Vyper doesn't have modifiers
+      },
+      language: 'vyper'
+    };
+  }
+  
+  if (langDetection.language === 'cairo') {
+    const cairoResult = await analyzeCairoContract(contractCode);
+    return {
+      vulnerabilities: cairoResult.vulnerabilities,
+      contractInfo: {
+        name: cairoResult.contractInfo.name,
+        functions: cairoResult.contractInfo.functions,
+        stateVariables: cairoResult.contractInfo.storageVariables,
+        modifiers: [] // Cairo doesn't have modifiers
+      },
+      language: 'cairo'
+    };
+  }
+  
+  // Default to Solidity analysis
+  return performSolidityAnalysis(contractCode);
+}
+
+async function performSolidityAnalysis(contractCode: string): Promise<StaticAnalysisResult> {
   const vulnerabilities: Vulnerability[] = [];
   const contractInfo = {
     name: 'Unknown',
@@ -128,7 +169,8 @@ export async function performStaticAnalysis(contractCode: string): Promise<Stati
 
   return {
     vulnerabilities: removeDuplicates(vulnerabilities),
-    contractInfo
+    contractInfo,
+    language: 'solidity'
   };
 }
 
