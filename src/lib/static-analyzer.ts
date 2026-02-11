@@ -73,11 +73,11 @@ export async function performStaticAnalysis(contractCode: string): Promise<Stati
             severity: pattern.severity,
             swcId: pattern.swcId,
             cweIds: swc?.cweIds || [],
-            scsvIds: [], // Will be mapped later
+            scsvIds: pattern.scsvIds || [],
             ethTrustImpact: getSeverityImpact(pattern.severity),
             lineNumber: match.lineNumber,
             lineRange: { start: match.lineNumber, end: match.lineNumber },
-            codeSnippet: lines[match.lineNumber - 1] || '',
+            codeSnippet: getCodeContext(lines, match.lineNumber, 2),
             description: swc?.description || pattern.description,
             exploitationScenario: 'See detailed analysis',
             recommendation: swc?.remediation || 'Review and fix this issue',
@@ -109,11 +109,11 @@ export async function performStaticAnalysis(contractCode: string): Promise<Stati
             severity: pattern.severity,
             swcId: pattern.swcId,
             cweIds: swc?.cweIds || [],
-            scsvIds: [],
+            scsvIds: pattern.scsvIds || [],
             ethTrustImpact: getSeverityImpact(pattern.severity),
             lineNumber: match.lineNumber,
             lineRange: { start: match.lineNumber, end: match.lineNumber },
-            codeSnippet: lines[match.lineNumber - 1] || '',
+            codeSnippet: getCodeContext(lines, match.lineNumber, 2),
             description: swc?.description || pattern.description,
             exploitationScenario: 'Requires detailed analysis',
             recommendation: swc?.remediation || 'Review and apply best practices',
@@ -149,6 +149,12 @@ function findPatternMatches(code: string, pattern: any): Array<{ lineNumber: num
   });
 
   return matches.length > 0 ? matches : [{ lineNumber: 1, match: '' }];
+}
+
+function getCodeContext(lines: string[], lineNumber: number, contextLines: number = 2): string {
+  const startLine = Math.max(0, lineNumber - contextLines - 1);
+  const endLine = Math.min(lines.length, lineNumber + contextLines);
+  return lines.slice(startLine, endLine).join('\n');
 }
 
 function getSeverityImpact(severity: string): number {

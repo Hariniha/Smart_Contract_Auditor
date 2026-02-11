@@ -87,6 +87,7 @@ export interface VulnerabilityPattern {
   name: string;
   severity: 'Critical' | 'High' | 'Medium' | 'Low';
   description: string;
+  scsvIds?: string[]; // SCSVS control IDs mapped to this vulnerability
   check: (code: string, ast?: any) => boolean;
 }
 

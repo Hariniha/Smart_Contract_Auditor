@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { AnalysisResult } from '@/types';
-import { CheckCircle, XCircle, Shield, AlertCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Shield, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { getEthTrustLevelDefinition } from '@/lib/ethtrust';
 import { getSWCById } from '@/lib/swc-registry';
 
@@ -10,6 +11,7 @@ interface SecurityStandardsProps {
 }
 
 export default function SecurityStandards({ result }: SecurityStandardsProps) {
+  const [showSCSVSDetails, setShowSCSVSDetails] = useState(false);
   const ethTrustDef = getEthTrustLevelDefinition(result.ethTrustLevel);
   
   const groupedControls = result.scsvCompliance.checklist.reduce((acc, check) => {
@@ -145,8 +147,22 @@ export default function SecurityStandards({ result }: SecurityStandardsProps) {
 
       {/* SCSVS Controls by Category */}
       <div className="space-y-4">
-        <h3 className="text-xl font-bold text-gray-900">SCSVS v2 Controls by Category</h3>
-        {Object.entries(groupedControls).map(([category, controls]) => {
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-bold text-gray-900">SCSVS v2 Controls by Category</h3>
+          <button
+            onClick={() => setShowSCSVSDetails(!showSCSVSDetails)}
+            className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium text-gray-700"
+          >
+            <span>{showSCSVSDetails ? 'Hide Details' : 'Show Details'}</span>
+            {showSCSVSDetails ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+
+        {showSCSVSDetails && Object.entries(groupedControls).map(([category, controls]) => {
           const passed = controls.filter(c => c.passed).length;
           const total = controls.length;
           const percentage = (passed / total) * 100;
@@ -197,6 +213,14 @@ export default function SecurityStandards({ result }: SecurityStandardsProps) {
             </div>
           );
         })}
+
+        {!showSCSVSDetails && (
+          <div className="card bg-gray-50">
+            <p className="text-center text-gray-600">
+              Click "Show Details" to view all {result.scsvCompliance.checklist.length} SCSVS v2 controls by category
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

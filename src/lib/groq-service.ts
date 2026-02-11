@@ -157,42 +157,55 @@ export async function enhanceVulnerabilityDescription(
   recommendation: string;
 }> {
   try {
+    // Sanitize code snippet to prevent JSON parsing issues
+    const sanitizedCode = vulnerability.codeSnippet
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, ' ')
+      .substring(0, 200); // Limit length
+    
     const completion = await groq.chat.completions.create({
       messages: [
         {
           role: 'system',
-          content: 'You are a smart contract security expert. Enhance vulnerability descriptions with clear, actionable insights. Return JSON only.'
+          content: 'You are a smart contract security expert. Provide detailed vulnerability analysis. Return valid JSON with fields: enhancedDescription, exploitationScenario, recommendation. Keep responses concise and technical.'
         },
         {
           role: 'user',
-          content: `Enhance this vulnerability report:
-          
-Vulnerability: ${vulnerability.name}
-Type: ${vulnerability.type}
-Line: ${vulnerability.lineNumber}
-Code: ${vulnerability.codeSnippet}
+          content: `Analyze this vulnerability:
 
-Provide JSON with: enhancedDescription, exploitationScenario, recommendation`
+Vulnerability Type: ${vulnerability.name}
+Classification: ${vulnerability.type}
+Location: Line ${vulnerability.lineNumber}
+Code Context: ${sanitizedCode}
+
+Return JSON with:
+- enhancedDescription: Clear explanation of the security issue
+- exploitationScenario: How an attacker could exploit this
+- recommendation: Specific fix with code example`
         }
       ],
       model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
       temperature: 0.2,
-      max_tokens: 1000,
+      max_tokens: 800,
       response_format: { type: 'json_object' }
     });
 
-    const result = JSON.parse(completion.choices[0]?.message?.content || '{}');
+    const content = completion.choices[0]?.message?.content || '{}';
+    const result = JSON.parse(content);
+    
     return {
-      enhancedDescription: result.enhancedDescription || vulnerability.name,
-      exploitationScenario: result.exploitationScenario || 'See documentation',
-      recommendation: result.recommendation || 'Review and fix'
+      enhancedDescription: result.enhancedDescription || result.description || vulnerability.name,
+      exploitationScenario: result.exploitationScenario || result.exploitation || 'Exploitation scenario unavailable',
+      recommendation: result.recommendation || result.fix || 'Review and apply security best practices'
     };
   } catch (error) {
     console.error('Error enhancing vulnerability:', error);
+    // Return fallback descriptions instead of throwing
     return {
       enhancedDescription: vulnerability.name,
-      exploitationScenario: 'Exploitation details unavailable',
-      recommendation: 'Manual review recommended'
+      exploitationScenario: 'This vulnerability could be exploited if not addressed. Manual review recommended.',
+      recommendation: 'Apply security best practices and conduct thorough testing.'
     };
   }
 }

@@ -44,12 +44,21 @@ export async function POST(request: NextRequest) {
             lineNumber: vuln.lineNumber
           });
 
-          vuln.description = enhanced.enhancedDescription;
-          vuln.exploitationScenario = enhanced.exploitationScenario;
-          vuln.recommendation = enhanced.recommendation;
-          vuln.detectionMethod = 'ai';
+          // Only update if we got valid responses
+          if (enhanced.enhancedDescription && enhanced.enhancedDescription !== vuln.name) {
+            vuln.description = enhanced.enhancedDescription;
+          }
+          if (enhanced.exploitationScenario) {
+            vuln.exploitationScenario = enhanced.exploitationScenario;
+          }
+          if (enhanced.recommendation) {
+            vuln.recommendation = enhanced.recommendation;
+          }
+          vuln.detectionMethod = 'hybrid'; // Static + AI
         } catch (error) {
           console.error('Error enhancing vulnerability:', error);
+          // Continue with static analysis results - don't fail the entire request
+          vuln.detectionMethod = 'static';
         }
       }
     }
