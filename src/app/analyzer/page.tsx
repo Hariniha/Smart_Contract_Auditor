@@ -11,7 +11,7 @@ import { AnalysisResult } from '@/types';
 
 export default function AnalyzerPage() {
   const [contractCode, setContractCode] = useState('');
-  const [fileName, setFileName] = useState('');
+  const [fileName, setFileName] = useState('contract.sol');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -19,25 +19,14 @@ export default function AnalyzerPage() {
   const [githubRepoLink, setGithubRepoLink] = useState('');
   const [activeTab, setActiveTab] = useState<'paste' | 'upload'>('paste');
 
-  const isValidContractFileName = (name: string) => {
-    const trimmed = name.trim();
-    return /^[^\\/:*?"<>|]+\.(sol|vy|cairo)$/i.test(trimmed);
-  };
-
   const handleAnalyze = async () => {
     if (!contractCode.trim()) {
       setError('Please enter contract code');
       return;
     }
 
-    if (!isValidContractFileName(fileName)) {
-      setError('Enter the name of the code with proper extension (.sol, .vy, .cairo)');
-      return;
-    }
-
     setIsAnalyzing(true);
     setError(null);
-    setAnalysisResult(null);
     setProgress(0);
 
     try {
@@ -57,7 +46,7 @@ export default function AnalyzerPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contractCode,
-          fileName: fileName.trim(),
+          fileName,
           analysisTypes: ['static', 'ai', 'standards'],
           severity: 'all'
         })
@@ -71,18 +60,7 @@ export default function AnalyzerPage() {
       setProgress(70);
 
       if (!response.ok) {
-        let errorMessage = 'Analysis failed';
-        try {
-          const errorData = await response.json();
-          if (errorData?.error) {
-            errorMessage = errorData.error;
-          } else if (errorData?.details) {
-            errorMessage = errorData.details;
-          }
-        } catch {
-          // Keep default message when response is not JSON.
-        }
-        throw new Error(errorMessage);
+        throw new Error('Analysis failed');
       }
 
       const result = await response.json();
@@ -100,7 +78,6 @@ export default function AnalyzerPage() {
       setAnalysisResult(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Analysis failed');
-      setAnalysisResult(null);
     } finally {
       setIsAnalyzing(false);
       setTimeout(() => setProgress(0), 1000);
@@ -115,9 +92,6 @@ export default function AnalyzerPage() {
         const content = e.target?.result as string;
         setContractCode(content);
         setFileName(file.name);
-        setError(null);
-        // Switch to code view so users can immediately see uploaded content.
-        setActiveTab('paste');
       };
       reader.readAsText(file);
     }
@@ -163,7 +137,7 @@ export default function AnalyzerPage() {
               <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500">SmartAudit AI</span>
             </Link>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600 font-medium">{fileName || 'No file name'}</span>
+              <span className="text-sm text-gray-600 font-medium">{fileName}</span>
             </div>
           </div>
         </div>
@@ -191,18 +165,10 @@ export default function AnalyzerPage() {
                   <input
                     type="text"
                     value={fileName}
-                    onChange={(e) => {
-                      setFileName(e.target.value);
-                      if (error) setError(null);
-                    }}
+                    onChange={(e) => setFileName(e.target.value)}
                     placeholder="contract.sol / contract.vy / contract.cairo"
                     className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-emerald-500 text-gray-900"
                   />
-                  {fileName.trim() && !isValidContractFileName(fileName) && (
-                    <p className="mt-2 text-sm text-red-600">
-                      Use a valid file name ending with .sol, .vy, or .cairo
-                    </p>
-                  )}
                 </div>
 
                 {/* GitHub Repo Input */}
@@ -295,21 +261,6 @@ contract UserAuth {
                       />
                     </label>
                     <p className="text-xs text-gray-500 mt-2">Solidity (.sol), Vyper (.vy), or Cairo (.cairo) files</p>
-
-                    {contractCode.trim() && (
-                      <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-left">
-                        <p className="text-sm text-emerald-700 font-semibold">File loaded successfully</p>
-                        <p className="text-xs text-gray-700 mt-1">{fileName || 'Unnamed file'}</p>
-                        <p className="text-xs text-gray-600 mt-1">{contractCode.split('\n').length} lines • {contractCode.length} characters</p>
-                        <button
-                          type="button"
-                          onClick={() => setActiveTab('paste')}
-                          className="mt-2 text-xs font-semibold text-blue-600 hover:text-blue-700"
-                        >
-                          View uploaded code
-                        </button>
-                      </div>
-                    )}
                   </div>
                 )}
 
