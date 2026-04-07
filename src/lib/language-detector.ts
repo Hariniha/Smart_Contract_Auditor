@@ -9,27 +9,26 @@ export interface LanguageDetectionResult {
 }
 
 export function detectLanguage(code: string, fileName?: string): LanguageDetectionResult {
-  // Detect by content first
+  // Check file extension first
+  if (fileName) {
+    if (fileName.endsWith('.sol')) {
+      return detectSolidity(code);
+    } else if (fileName.endsWith('.vy')) {
+      return detectVyper(code);
+    } else if (fileName.endsWith('.cairo')) {
+      return detectCairo(code);
+    }
+  }
+
+  // Try to detect by content
   const solidityResult = detectSolidity(code);
   const vyperResult = detectVyper(code);
   const cairoResult = detectCairo(code);
 
-  const results = [solidityResult, vyperResult, cairoResult];
-
-  // Use file extension as a soft hint (not a hard override)
-  if (fileName) {
-    const lowerFileName = fileName.toLowerCase();
-    if (lowerFileName.endsWith('.sol')) {
-      solidityResult.confidence += 12;
-    } else if (lowerFileName.endsWith('.vy')) {
-      vyperResult.confidence += 12;
-    } else if (lowerFileName.endsWith('.cairo')) {
-      cairoResult.confidence += 12;
-    }
-  }
-
   // Return the one with highest confidence
+  const results = [solidityResult, vyperResult, cairoResult];
   results.sort((a, b) => b.confidence - a.confidence);
+  
   return results[0];
 }
 
@@ -113,25 +112,23 @@ function detectCairo(code: string): LanguageDetectionResult {
     version = '1.x';
   }
 
-  // Check for Cairo-specific attributes (both @ and #[ styles)
-  if (/@external\b|#\[external/i.test(code)) confidence += 10;
-  if (/@view\b|#\[view/i.test(code)) confidence += 10;
-  if (/@storage_var\b|#\[storage/i.test(code)) confidence += 15;
-  if (/@constructor\b|#\[constructor/i.test(code)) confidence += 10;
-  if (/@event\b|#\[event/i.test(code)) confidence += 5;
+  // Check for Cairo-specific keywords
+  if (/@external\b/i.test(code)) confidence += 10;
+  if (/@view\b/i.test(code)) confidence += 10;
+  if (/@storage_var\b/i.test(code)) confidence += 15;
+  if (/@constructor\b/i.test(code)) confidence += 10;
+  if (/@event\b/i.test(code)) confidence += 5;
 
   // Cairo-specific types and syntax
   if (/\bfelt\b/i.test(code)) confidence += 15;
   if (/\bu256\b/i.test(code)) confidence += 10;
   if (/\blet\s+\w+\s*=/i.test(code)) confidence += 5;
-  if (/use\s+starknet::|use\s+\w+::/i.test(code)) confidence += 10;
+  if (/\buse\s+\w+/i.test(code)) confidence += 10;
   if (/\bimpl\s+\w+/i.test(code)) confidence += 10;
   if (/\bfn\s+\w+/i.test(code)) confidence += 10;
-  if (/\bmod\s+\w+\s*\{/i.test(code)) confidence += 15;  // Cairo module
-  if (/LegacyMap|ContractAddress/i.test(code)) confidence += 15;  // Cairo-specific types
 
   return {
-    language: confidence > 25 ? 'cairo' : 'unknown',  // Lowered threshold from 30 to 25
+    language: confidence > 30 ? 'cairo' : 'unknown',
     confidence,
     version
   };
