@@ -24,6 +24,66 @@ export default function AnalyzerPage() {
     return /^[^\\/:*?"<>|]+\.(sol|vy|cairo)$/i.test(trimmed);
   };
 
+  const runAnalysis = async (codeToAnalyze: string, targetFileName: string): Promise<void> => {
+    // Stage 1: Parsing contract
+    setProgress(10);
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Stage 2: Static analysis - Pattern detection
+    setProgress(25);
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Stage 3: Static analysis - SWC Registry check
+    setProgress(40);
+
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contractCode: codeToAnalyze,
+        fileName: targetFileName.trim(),
+        analysisTypes: ['static', 'ai', 'standards'],
+        severity: 'all'
+      })
+    });
+
+    // Stage 4: Dynamic analysis - AI reasoning
+    setProgress(55);
+    await new Promise(resolve => setTimeout(resolve, 400));
+
+    // Stage 5: Dynamic analysis - Logic evaluation
+    setProgress(70);
+
+    if (!response.ok) {
+      let errorMessage = 'Analysis failed';
+      try {
+        const errorData = await response.json();
+        if (errorData?.error) {
+          errorMessage = errorData.error;
+        } else if (errorData?.details) {
+          errorMessage = errorData.details;
+        }
+      } catch {
+        // Keep default message when response is not JSON.
+      }
+      throw new Error(errorMessage);
+    }
+
+    const result = await response.json();
+
+    // Stage 6: Standards compliance check
+    setProgress(85);
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Stage 7: Generating comprehensive report
+    setProgress(95);
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    // Complete
+    setProgress(100);
+    setAnalysisResult(result);
+  };
+
   const handleAnalyze = async () => {
     if (!contractCode.trim()) {
       setError('Please enter contract code');
@@ -41,63 +101,7 @@ export default function AnalyzerPage() {
     setProgress(0);
 
     try {
-      // Stage 1: Parsing contract
-      setProgress(10);
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // Stage 2: Static analysis - Pattern detection
-      setProgress(25);
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // Stage 3: Static analysis - SWC Registry check
-      setProgress(40);
-
-      const response = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contractCode,
-          fileName: fileName.trim(),
-          analysisTypes: ['static', 'ai', 'standards'],
-          severity: 'all'
-        })
-      });
-
-      // Stage 4: Dynamic analysis - AI reasoning
-      setProgress(55);
-      await new Promise(resolve => setTimeout(resolve, 400));
-      
-      // Stage 5: Dynamic analysis - Logic evaluation
-      setProgress(70);
-
-      if (!response.ok) {
-        let errorMessage = 'Analysis failed';
-        try {
-          const errorData = await response.json();
-          if (errorData?.error) {
-            errorMessage = errorData.error;
-          } else if (errorData?.details) {
-            errorMessage = errorData.details;
-          }
-        } catch {
-          // Keep default message when response is not JSON.
-        }
-        throw new Error(errorMessage);
-      }
-
-      const result = await response.json();
-      
-      // Stage 6: Standards compliance check
-      setProgress(85);
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // Stage 7: Generating comprehensive report
-      setProgress(95);
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      // Complete
-      setProgress(100);
-      setAnalysisResult(result);
+      await runAnalysis(contractCode, fileName);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Analysis failed');
       setAnalysisResult(null);
@@ -140,14 +144,47 @@ export default function AnalyzerPage() {
     setProgress(10);
 
     try {
-      setProgress(30);
-      // TODO: Implement GitHub repo fetching logic
-      setError('GitHub repository analysis coming soon!');
-      setProgress(0);
+      setProgress(25);
+      const repositoryResponse = await fetch('/api/github/repository', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ githubUrl: githubRepoLink })
+      });
+
+      if (!repositoryResponse.ok) {
+        let errorMessage = 'Failed to fetch repository';
+        try {
+          const errorData = await repositoryResponse.json();
+          if (errorData?.error) {
+            errorMessage = errorData.error;
+          }
+        } catch {
+          // Keep fallback error message.
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      const repositoryResult = await repositoryResponse.json();
+      const fetchedCode: string = repositoryResult.contractCode || '';
+      const fetchedFileName: string = repositoryResult.fileName || 'contract.sol';
+
+      if (!fetchedCode.trim()) {
+        throw new Error('No smart contract files were found in the provided GitHub link');
+      }
+
+      setContractCode(fetchedCode);
+      setFileName(fetchedFileName);
+      setAnalysisResult(null);
+      setActiveTab('paste');
+
+      await runAnalysis(fetchedCode, fetchedFileName);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch repository');
+      setAnalysisResult(null);
     } finally {
       setIsAnalyzing(false);
+      setTimeout(() => setProgress(0), 1000);
     }
   };
 
