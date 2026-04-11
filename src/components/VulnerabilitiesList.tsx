@@ -7,9 +7,10 @@ import { cn } from '@/lib/utils';
 
 interface VulnerabilitiesListProps {
   vulnerabilities: Vulnerability[];
+  language?: string;
 }
 
-export default function VulnerabilitiesList({ vulnerabilities }: VulnerabilitiesListProps) {
+export default function VulnerabilitiesList({ vulnerabilities, language }: VulnerabilitiesListProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [severityFilter, setSeverityFilter] = useState<string>('all');
 
@@ -18,6 +19,21 @@ export default function VulnerabilitiesList({ vulnerabilities }: Vulnerabilities
     : vulnerabilities.filter(v => v.severity.toLowerCase() === severityFilter);
 
   const severityOrder = { 'Critical': 1, 'High': 2, 'Medium': 3, 'Low': 4, 'Info': 5 };
+  
+  // Helper to get the appropriate registry ID based on language
+  const getRegistryId = (vuln: Vulnerability): string => {
+    const lang = language?.toLowerCase() || 'solidity';
+    if (lang === 'cairo') {
+      // Try to extract CSR ID from type field
+      return vuln.type?.startsWith('CSR-') ? vuln.type : 'CSR-N/A';
+    } else if (lang === 'vyper') {
+      // Try to extract VSR ID from type field
+      return vuln.type?.startsWith('VSR-') ? vuln.type : 'VSR-N/A';
+    } else {
+      // Solidity - SWC
+      return vuln.swcId || 'SWC-N/A';
+    }
+  };
   const sortedVulns = [...filteredVulns].sort((a, b) => 
     severityOrder[a.severity] - severityOrder[b.severity]
   );
@@ -76,7 +92,7 @@ export default function VulnerabilitiesList({ vulnerabilities }: Vulnerabilities
                     <span className={cn('badge', `severity-${vuln.severity.toLowerCase()}`)}>
                       {vuln.severity}
                     </span>
-                    <span className="text-xs text-gray-500 font-medium">{vuln.swcId}</span>
+                    <span className="text-xs text-gray-500 font-medium">{getRegistryId(vuln)}</span>
                     <span className="text-xs text-gray-500 font-medium">Line {vuln.lineNumber}</span>
                   </div>
                   <h3 className="text-lg font-semibold mb-1 text-gray-900">{vuln.name}</h3>

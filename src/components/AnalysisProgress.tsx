@@ -8,7 +8,7 @@ export default function AnalysisProgress({ progress }: AnalysisProgressProps) {
   const stages = [
     { label: 'Parsing contract', threshold: 15 },
     { label: 'Static analysis - Pattern detection', threshold: 35 },
-    { label: 'Static analysis - SWC Registry check', threshold: 50 },
+    { label: 'Static analysis - Security Registry check', threshold: 50 },
     { label: 'Dynamic analysis - AI reasoning', threshold: 65 },
     { label: 'Dynamic analysis - Logic evaluation', threshold: 80 },
     { label: 'Standards compliance check', threshold: 92 },

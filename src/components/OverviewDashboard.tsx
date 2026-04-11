@@ -12,6 +12,17 @@ interface OverviewDashboardProps {
 export default function OverviewDashboard({ result }: OverviewDashboardProps) {
   const ethTrustDef = getEthTrustLevelDefinition(result.ethTrustLevel);
 
+  const getLanguageBadgeStyle = (language?: string) => {
+    switch(language?.toLowerCase()) {
+      case 'solidity': return { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Solidity' };
+      case 'cairo': return { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Cairo' };
+      case 'vyper': return { bg: 'bg-green-100', text: 'text-green-700', label: 'Vyper' };
+      default: return { bg: 'bg-gray-100', text: 'text-gray-700', label: language || 'Unknown' };
+    }
+  };
+
+  const languageStyle = getLanguageBadgeStyle(result.language);
+
   const severityData = [
     { name: 'Critical', value: result.statistics.critical, color: '#DC2626' },
     { name: 'High', value: result.statistics.high, color: '#F59E0B' },
@@ -22,6 +33,13 @@ export default function OverviewDashboard({ result }: OverviewDashboardProps) {
 
   return (
     <div className="space-y-6">
+      {/* Language Badge */}
+      {result.language && (
+        <div className={`inline-block ${languageStyle.bg} ${languageStyle.text} px-4 py-2 rounded-lg font-semibold text-sm`}>
+          Language: {languageStyle.label}
+        </div>
+      )}
+
       {/* Key Metrics */}
       <div className="grid md:grid-cols-4 gap-4">
         <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">

@@ -1,4 +1,9 @@
 // Cairo-specific Vulnerability Patterns
+//
+// Language: CAIRO
+// ID Registry: CSR (Cairo Security Registry)
+// Examples: CSR-001 (Reentrancy), CSR-014 (Missing Event Emission)
+// Reference: Cairo security best practices
 
 export interface CairoVulnerabilityPattern {
   id: string;

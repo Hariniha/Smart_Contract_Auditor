@@ -89,26 +89,52 @@ export default function HomePage() {
             <div className='inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 mb-6'>
               <Shield className='w-4 h-4 text-emerald-400' />
               <span className='text-sm text-emerald-300 font-medium'>
-                AI-Powered Security Analysis
+                AI-Powered Security Analysis • Multi-Language Support
               </span>
             </div>
 
             {/* Main Heading */}
             <h1 className='text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white'>
-              Secure Your Code
-              <br />
+              Secure Your{' '}
               <span className='text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400'>
-                with AI Intelligence
+                Smart Contracts
+              </span>
+              <br />
+              <span className='text-2xl md:text-3xl font-semibold text-gray-300'>
+                Solidity • Cairo • Vyper
               </span>
             </h1>
 
             {/* Description */}
             <p className='text-lg md:text-xl text-gray-300 mb-8 leading-relaxed'>
-              Comprehensive security analysis combining{' '}
-              <strong>static pattern detection</strong> with
-              <strong> dynamic AI analysis</strong> to identify vulnerabilities
-              and protect your smart contracts.
+              Comprehensive security analysis for <strong>Solidity (EVM)</strong>, <strong>Cairo (StarkNet)</strong>,
+              and <strong>Vyper (Python-based)</strong> smart contracts. Combining
+              <strong> static pattern detection</strong> with{' '}
+              <strong>dynamic AI analysis</strong> to identify vulnerabilities
+              and protect your code across all blockchain platforms.
             </p>
+
+            {/* Language Support Badges */}
+            <div className='flex flex-wrap gap-3 mb-8'>
+              <div className='flex items-center space-x-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/50'>
+                <span className='text-2xl font-bold text-blue-400'>{}.</span>
+                <span className='text-sm text-blue-200 font-semibold'>
+                  Solidity (EVM)
+                </span>
+              </div>
+              <div className='flex items-center space-x-2 px-4 py-2 rounded-lg bg-yellow-500/20 border border-yellow-500/50'>
+                <span className='text-2xl font-bold text-yellow-400'>C</span>
+                <span className='text-sm text-yellow-200 font-semibold'>
+                  Cairo (StarkNet)
+                </span>
+              </div>
+              <div className='flex items-center space-x-2 px-4 py-2 rounded-lg bg-green-500/20 border border-green-500/50'>
+                <span className='text-2xl font-bold text-green-400'>🐍</span>
+                <span className='text-sm text-green-200 font-semibold'>
+                  Vyper (Python)
+                </span>
+              </div>
+            </div>
 
             {/* Feature Pills */}
             <div className='flex flex-wrap gap-3 mb-10'>
@@ -311,6 +337,82 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Language Support */}
+      <section className='py-20 bg-gradient-to-b from-[#0f1c2e] to-gray-900'>
+        <div className='container mx-auto px-4'>
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className='text-center mb-16'>
+            <h2 className='text-3xl md:text-4xl font-bold mb-4 text-white'>
+              Multi-Language Support
+            </h2>
+            <p className='text-lg text-gray-400'>
+              Comprehensive security analysis across Web3&apos;s leading smart contract languages
+            </p>
+          </motion.div>
+
+          {/* Language Cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className='mt-12 grid md:grid-cols-3 gap-8 max-w-5xl mx-auto'>
+            {[
+              {
+                name: 'Solidity',
+                icon: '≡',
+                description: 'The most popular language for Ethereum smart contracts',
+                features: ['EVM Compatibility', 'SWC Registry', 'Reentrancy Detection', 'Gas Optimization'],
+                color: 'bg-blue-500/20 hover:bg-blue-500/30 border-blue-500/50',
+                textColor: 'text-blue-300'
+              },
+              {
+                name: 'Cairo',
+                icon: '◊',
+                description: 'Starknet\'s proving language for scalable apps',
+                features: ['Cairo Analysis', 'CSR Registry', 'Proof Validation', 'Performance Optimization'],
+                color: 'bg-yellow-500/20 hover:bg-yellow-500/30 border-yellow-500/50',
+                textColor: 'text-yellow-300'
+              },
+              {
+                name: 'Vyper',
+                icon: '◈',
+                description: 'Pythonic language designed for contract security',
+                features: ['Vyper Syntax', 'VSR Registry', 'Memory Safety', 'Overflow Protection'],
+                color: 'bg-green-500/20 hover:bg-green-500/30 border-green-500/50',
+                textColor: 'text-green-300'
+              },
+            ].map((lang, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className={`border-2 rounded-2xl p-8 transition-all duration-300 backdrop-blur-md ${lang.color}`}>
+                <div className='text-5xl mb-4 font-bold'>{lang.icon}</div>
+                <h3 className={`text-2xl font-bold mb-3 ${lang.textColor}`}>
+                  {lang.name}
+                </h3>
+                <p className='text-gray-300 mb-6'>
+                  {lang.description}
+                </p>
+                <ul className='space-y-2'>
+                  {lang.features.map((feature, idx) => (
+                    <li key={idx} className='flex items-center text-gray-300 text-sm'>
+                      <span className={`w-2 h-2 rounded-full mr-3 ${lang.textColor}`}></span>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
       {/* How to Use */}
       <section id='how-to-use' className='py-20 bg-white'>
         <div className='container mx-auto px-4'>
@@ -335,19 +437,21 @@ export default function HomePage() {
                   step: '01',
                   title: 'Upload Your Contract',
                   description:
-                    'Paste your Solidity, Vyper, or Cairo code directly, upload smart contract files (.sol, .vy, .cairo), or connect your GitHub repository for analysis',
+                    'Paste or upload your smart contract code. Supports Solidity (.sol), Vyper (.vy), and Cairo (.cairo) files. Auto-detects language.',
+                  languages: 'Solidity • Cairo • Vyper',
                   icon: <FileSearch className='w-10 h-10 text-emerald-600' />,
                 },
                 {
                   step: '02',
-                  title: 'View Dashboard & Results',
+                  title: 'AI Analysis & Detection',
                   description:
-                    'Instantly see comprehensive analysis results with security scores, vulnerability details, and compliance checks in an interactive dashboard',
+                    'Our engine runs language-specific analysis with SWC (Solidity), CSR (Cairo), or VSR (Vyper) pattern matching plus AI reasoning.',
+                  languages: 'Multi-Language Registry Support',
                   icon: <Zap className='w-10 h-10 text-emerald-600' />,
                 },
                 {
                   step: '03',
-                  title: 'Download Reports',
+                  title: 'Download Professional Reports',
                   description:
                     'Click the download button to export comprehensive security reports in PDF, JSON, or Text format for documentation and review',
                   icon: <BarChart3 className='w-10 h-10 text-emerald-600' />,
@@ -370,9 +474,16 @@ export default function HomePage() {
                     <h3 className='text-xl font-bold mb-3 text-gray-900'>
                       {item.title}
                     </h3>
-                    <p className='text-gray-600 leading-relaxed'>
+                    <p className='text-gray-600 leading-relaxed mb-4'>
                       {item.description}
                     </p>
+                    {item.languages && (
+                      <div className='pt-3 border-t border-gray-200'>
+                        <p className='text-xs font-semibold text-emerald-600'>
+                          {item.languages}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
@@ -446,6 +557,119 @@ export default function HomePage() {
               viewport={{ once: true }}
               className='mt-12 text-center'></motion.div>
           </div>
+        </div>
+      </section>
+
+      {/* Supported Languages */}
+      <section className='py-20 bg-gradient-to-b from-gray-900 via-gray-900 to-[#0f1c2e]'>
+        <div className='container mx-auto px-4'>
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className='text-center mb-16'>
+            <h2 className='text-3xl md:text-4xl font-bold mb-4 text-white'>
+              Universal Blockchain Support
+            </h2>
+            <p className='text-lg text-gray-400'>
+              Analyze smart contracts across multiple blockchain ecosystems
+            </p>
+          </motion.div>
+
+          <div className='grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-12'>
+            {[
+              {
+                language: 'Solidity',
+                network: 'Ethereum & EVM',
+                icon: '{}',
+                color: 'from-blue-500 to-blue-600',
+                textColor: 'text-blue-600',
+                description: 'Smart contract language for Ethereum and EVM-compatible blockchains',
+                registry: 'SWC Registry',
+                patterns: '100+ patterns',
+              },
+              {
+                language: 'Cairo',
+                network: 'StarkNet',
+                icon: 'C',
+                color: 'from-yellow-500 to-yellow-600',
+                textColor: 'text-yellow-600',
+                description: 'STARK-based smart contracts on the StarkNet ecosystem',
+                registry: 'CSR Registry',
+                patterns: '50+ patterns',
+              },
+              {
+                language: 'Vyper',
+                network: 'Ethereum (Python)',
+                icon: '🐍',
+                color: 'from-green-500 to-green-600',
+                textColor: 'text-green-600',
+                description: 'Pythonic smart contract language for enhanced security',
+                registry: 'VSR Registry',
+                patterns: '40+ patterns',
+              },
+            ].map((lang, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className={`relative bg-gradient-to-br ${lang.color}/10 border border-gray-700 rounded-2xl p-8 hover:border-emerald-500 transition-all duration-300 group`}>
+                <div
+                  className={`absolute -top-6 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-gradient-to-br ${lang.color} rounded-xl flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform`}>
+                  {lang.icon}
+                </div>
+                <div className='pt-8 text-center'>
+                  <h3 className='text-2xl font-bold text-white mb-2'>
+                    {lang.language}
+                  </h3>
+                  <p className='text-sm font-medium text-gray-400 mb-4'>
+                    {lang.network}
+                  </p>
+                  <p className='text-gray-300 text-sm mb-6 leading-relaxed'>
+                    {lang.description}
+                  </p>
+                  <div className='flex flex-col gap-2 border-t border-gray-600 pt-4'>
+                    <div className='flex items-center justify-center gap-2'>
+                      <span className={`font-semibold ${lang.textColor}`}>
+                        {lang.registry}
+                      </span>
+                    </div>
+                    <div className='text-xs text-gray-400'>
+                      {lang.patterns}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className='max-w-3xl mx-auto bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-8 text-center'>
+            <h4 className='text-xl font-bold text-white mb-3'>
+              Auto-Language Detection
+            </h4>
+            <p className='text-gray-300 mb-4'>
+              Simply upload your contract file with the correct extension (.sol, .cairo, .vy)
+              or paste your code, and our AI engine automatically detects the language and
+              applies the appropriate security analysis framework.
+            </p>
+            <div className='flex items-center justify-center gap-4 pt-4 border-t border-emerald-500/20'>
+              <span className='text-sm text-emerald-300 font-medium'>
+                ✓ Automatic Detection
+              </span>
+              <span className='text-sm text-emerald-300 font-medium'>
+                ✓ Language-Specific Analysis
+              </span>
+              <span className='text-sm text-emerald-300 font-medium'>
+                ✓ Unified Dashboard
+              </span>
+            </div>
+          </motion.div>
         </div>
       </section>
 

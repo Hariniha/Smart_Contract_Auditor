@@ -1,4 +1,9 @@
 // Vyper-specific Vulnerability Patterns
+//
+// Language: VYPER
+// ID Registry: VSR (Vyper Security Registry)
+// Examples: VSR-001 (Reentrancy), VSR-002 (Unchecked Send)
+// Reference: Vyper security guidelines
 
 export interface VyperVulnerabilityPattern {
   id: string;

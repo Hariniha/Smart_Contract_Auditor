@@ -87,7 +87,7 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
         {/* Tab Content */}
         <div className="animate-fade-in">
           {activeTab === 'overview' && <OverviewDashboard result={result} />}
-          {activeTab === 'vulnerabilities' && <VulnerabilitiesList vulnerabilities={result.vulnerabilities} />}
+          {activeTab === 'vulnerabilities' && <VulnerabilitiesList vulnerabilities={result.vulnerabilities} language={result.language} />}
           {activeTab === 'standards' && <SecurityStandards result={result} />}
           {activeTab === 'analytics' && <AnalyticsDashboard result={result} />}
         </div>

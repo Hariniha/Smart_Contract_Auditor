@@ -39,3 +39,9 @@ next-env.d.ts
 
 # text files
 *.txt
+
+# Python files
+*.py
+
+# Word documents
+*.docx

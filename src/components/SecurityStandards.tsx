@@ -5,6 +5,8 @@ import { AnalysisResult } from '@/types';
 import { CheckCircle, XCircle, Shield, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { getEthTrustLevelDefinition } from '@/lib/ethtrust';
 import { getSWCById } from '@/lib/swc-registry';
+import { getCSRById } from '@/lib/cairo-security-registry';
+import { getVSRById } from '@/lib/vyper-security-registry';
 
 interface SecurityStandardsProps {
   result: AnalysisResult;
@@ -106,44 +108,212 @@ export default function SecurityStandards({ result }: SecurityStandardsProps) {
         </div>
       </div>
 
-      {/* SWC Registry Coverage */}
+      {/* Registry Coverage - Dynamic based on Language */}
       <div className="card">
-        <h3 className="text-xl font-bold mb-4 text-gray-900">SWC Registry Coverage</h3>
-        <p className="text-gray-600 mb-4">
-          Smart Contract Weakness Classification patterns detected in your contract
-        </p>
-        
-        {result.vulnerabilities.length > 0 ? (
-          <div className="space-y-3">
-            {Array.from(new Set(result.vulnerabilities.map(v => v.swcId))).map((swcId) => {
-              const swc = getSWCById(swcId);
-              const count = result.vulnerabilities.filter(v => v.swcId === swcId).length;
-              
-              return swc && (
-                <div key={swcId} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <div className="font-semibold text-gray-900">{swc.title}</div>
-                      <div className="text-sm text-gray-600">
-                        {swcId} • {swc.cweIds.join(', ')} • {count} instance{count > 1 ? 's' : ''}
+        {result.language?.toLowerCase() === 'solidity' && (
+          <>
+            <h3 className="text-xl font-bold mb-4 text-gray-900">SWC Registry Coverage</h3>
+            <p className="text-gray-600 mb-4">
+              Smart Contract Weakness Classification patterns detected in your contract
+            </p>
+            
+            {result.vulnerabilities.length > 0 ? (
+              <div className="space-y-3">
+                {Array.from(new Set(result.vulnerabilities.map(v => v.swcId).filter(id => id))).map((swcId) => {
+                  const swc = getSWCById(swcId);
+                  const count = result.vulnerabilities.filter(v => v.swcId === swcId).length;
+                  
+                  return swc && (
+                    <div key={swcId} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <div className="font-semibold text-gray-900">{swc.title}</div>
+                          <div className="text-sm text-gray-600">
+                            {swcId} • {swc.cweIds.join(', ')} • {count} instance{count > 1 ? 's' : ''}
+                          </div>
+                        </div>
+                        <span className={`badge severity-${swc.severity.toLowerCase()}`}>
+                          {swc.severity}
+                        </span>
                       </div>
+                      <p className="text-sm text-gray-600">{swc.description.substring(0, 150)}...</p>
                     </div>
-                    <span className={`badge severity-${swc.severity.toLowerCase()}`}>
-                      {swc.severity}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600">{swc.description.substring(0, 150)}...</p>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="text-center py-8 text-gray-500">
-            <CheckCircle className="w-12 h-12 mx-auto mb-2 text-green-500" />
-            No SWC patterns detected
-          </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <CheckCircle className="w-12 h-12 mx-auto mb-2 text-green-500" />
+                No SWC patterns detected
+              </div>
+            )}
+          </>
+        )}
+
+        {result.language?.toLowerCase() === 'cairo' && (
+          <>
+            <h3 className="text-xl font-bold mb-4 text-gray-900">CSR Registry Coverage</h3>
+            <p className="text-gray-600 mb-4">
+              Cairo Security Registry patterns detected in your contract
+            </p>
+            
+            {result.vulnerabilities.length > 0 ? (
+              <div className="space-y-3">
+                {Array.from(new Set(result.vulnerabilities.filter(v => {
+                  // Extract CSR ID from vulnerability data
+                  return true;
+                }).map(v => v.type))).map((vulnerabilityType) => {
+                  const vulns = result.vulnerabilities.filter(v => v.type === vulnerabilityType);
+                  const csrId = vulns[0]?.type?.startsWith('CSR-') ? vulns[0].type : null;
+                  
+                  if (!csrId) return null;
+                  
+                  const csr = getCSRById(csrId);
+                  const count = vulns.length;
+                  
+                  return csr && (
+                    <div key={csrId} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <div className="font-semibold text-gray-900">{csr.title || 'Cairo Vulnerability'}</div>
+                          <div className="text-sm text-gray-600">
+                            {csrId} • {count} instance{count > 1 ? 's' : ''}
+                          </div>
+                        </div>
+                        <span className={`badge severity-${(csr.severity || 'medium').toLowerCase()}`}>
+                          {csr.severity || 'Medium'}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600">{(csr.description || '').substring(0, 150)}...</p>
+                    </div>
+                  );
+                }).filter(Boolean)}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <CheckCircle className="w-12 h-12 mx-auto mb-2 text-green-500" />
+                No CSR patterns detected
+              </div>
+            )}
+          </>
+        )}
+
+        {result.language?.toLowerCase() === 'vyper' && (
+          <>
+            <h3 className="text-xl font-bold mb-4 text-gray-900">VSR Registry Coverage</h3>
+            <p className="text-gray-600 mb-4">
+              Vyper Security Registry patterns detected in your contract
+            </p>
+            
+            {result.vulnerabilities.length > 0 ? (
+              <div className="space-y-3">
+                {Array.from(new Set(result.vulnerabilities.filter(v => {
+                  // Extract VSR ID from vulnerability data
+                  return true;
+                }).map(v => v.type))).map((vulnerabilityType) => {
+                  const vulns = result.vulnerabilities.filter(v => v.type === vulnerabilityType);
+                  const vsrId = vulns[0]?.type?.startsWith('VSR-') ? vulns[0].type : null;
+                  
+                  if (!vsrId) return null;
+                  
+                  const vsr = getVSRById(vsrId);
+                  const count = vulns.length;
+                  
+                  return vsr && (
+                    <div key={vsrId} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <div className="font-semibold text-gray-900">{vsr.title || 'Vyper Vulnerability'}</div>
+                          <div className="text-sm text-gray-600">
+                            {vsrId} • {count} instance{count > 1 ? 's' : ''}
+                          </div>
+                        </div>
+                        <span className={`badge severity-${(vsr.severity || 'medium').toLowerCase()}`}>
+                          {vsr.severity || 'Medium'}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600">{(vsr.description || '').substring(0, 150)}...</p>
+                    </div>
+                  );
+                }).filter(Boolean)}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <CheckCircle className="w-12 h-12 mx-auto mb-2 text-green-500" />
+                No VSR patterns detected
+              </div>
+            )}
+          </>
         )}
       </div>
+
+      {/* Failed SCSVS v2 Controls - Only Non-Compliant */}
+      {(() => {
+        const failedControls = result.scsvCompliance.checklist.filter(c => !c.passed);
+        if (failedControls.length === 0) {
+          return (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6">
+              <div className="flex items-center">
+                <CheckCircle className="w-6 h-6 text-emerald-600 mr-3" />
+                <span className="text-emerald-700 font-semibold">All SCSVS v2 controls passed! No compliance issues detected.</span>
+              </div>
+            </div>
+          );
+        }
+
+        const failedByCategory: Record<string, typeof failedControls> = {};
+        failedControls.forEach(control => {
+          if (!failedByCategory[control.category]) {
+            failedByCategory[control.category] = [];
+          }
+          failedByCategory[control.category].push(control);
+        });
+
+        return (
+          <div className="card border-red-200 bg-red-50">
+            <div className="flex items-center mb-6">
+              <XCircle className="w-6 h-6 text-red-600 mr-3" />
+              <h3 className="text-xl font-bold text-red-900">Failed SCSVS v2 Controls by Category</h3>
+              <span className="ml-auto bg-red-100 text-red-800 text-sm font-bold px-3 py-1 rounded-full">
+                {failedControls.length} Issues
+              </span>
+            </div>
+
+            <div className="space-y-4">
+              {Object.entries(failedByCategory).map(([category, controls]) => (
+                <div key={category} className="bg-white border border-red-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 mb-3">{category}</h4>
+                  <div className="space-y-2">
+                    {controls.map(control => (
+                      <div key={control.controlId} className="flex items-start">
+                        <XCircle className="w-4 h-4 text-red-600 mt-1 mr-2 flex-shrink-0" />
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-gray-900 text-sm">{control.title}</span>
+                            <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                              {control.controlId}
+                            </span>
+                          </div>
+                          {control.findings && control.findings.length > 0 && (
+                            <div className="text-xs text-gray-600 mt-1 ml-0">
+                              {control.findings.slice(0, 2).map((finding, idx) => (
+                                <div key={idx}>• {finding}</div>
+                              ))}
+                              {control.findings.length > 2 && (
+                                <div className="text-gray-500">... and {control.findings.length - 2} more</div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* SCSVS Controls by Category */}
       <div className="space-y-4">

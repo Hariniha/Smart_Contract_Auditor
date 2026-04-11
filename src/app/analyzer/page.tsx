@@ -239,15 +239,26 @@ export default function AnalyzerPage() {
                 <div className='flex items-center justify-between mb-4'>
                   <h2 className='text-2xl font-bold flex items-center text-gray-900'>
                     <FileCode className='w-6 h-6 mr-2 text-emerald-600' />
-                    Smart Contract Code
+                    Smart Contract Analysis
                   </h2>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700'>
+                      Solidity
+                    </span>
+                    <span className='text-xs font-semibold px-2 py-1 rounded-full bg-yellow-100 text-yellow-700'>
+                      Cairo
+                    </span>
+                    <span className='text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700'>
+                      Vyper
+                    </span>
+                  </div>
                 </div>
 
                 {/* File Name Input */}
                 <div className='mb-4'>
                   <label className='block text-sm font-semibold text-gray-700 mb-2'>
                     <FileCode className='w-4 h-4 inline mr-2' />
-                    Contract Name
+                    Contract Name (.sol / .vy / .cairo)
                   </label>
                   <input
                     type='text'

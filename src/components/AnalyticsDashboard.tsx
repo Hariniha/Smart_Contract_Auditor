@@ -9,13 +9,26 @@ interface AnalyticsDashboardProps {
 }
 
 export default function AnalyticsDashboard({ result }: AnalyticsDashboardProps) {
+  // Helper to get the appropriate registry ID based on language
+  const getRegistryId = (vuln: any): string => {
+    const lang = result.language?.toLowerCase() || 'solidity';
+    if (lang === 'cairo') {
+      return vuln.type?.startsWith('CSR-') ? vuln.type : 'CSR-N/A';
+    } else if (lang === 'vyper') {
+      return vuln.type?.startsWith('VSR-') ? vuln.type : 'VSR-N/A';
+    } else {
+      return vuln.swcId || 'SWC-N/A';
+    }
+  };
+
   // Vulnerability type distribution
   const vulnTypeData = result.vulnerabilities.reduce((acc, vuln) => {
-    const existing = acc.find(item => item.name === vuln.swcId);
+    const id = getRegistryId(vuln);
+    const existing = acc.find(item => item.name === id);
     if (existing) {
       existing.count++;
     } else {
-      acc.push({ name: vuln.swcId, count: 1 });
+      acc.push({ name: id, count: 1 });
     }
     return acc;
   }, [] as Array<{ name: string; count: number }>);
@@ -171,8 +184,20 @@ export default function AnalyticsDashboard({ result }: AnalyticsDashboardProps) 
               {[
                 { label: 'Fund Loss Risk', value: result.statistics.critical > 0 ? 'High' : 'Low', color: result.statistics.critical > 0 ? 'text-red-600' : 'text-green-600' },
                 { label: 'Access Control', value: result.vulnerabilities.some(v => v.type.includes('Access') || v.type.includes('Authorization')) ? 'Issues Found' : 'Secure', color: result.vulnerabilities.some(v => v.type.includes('Access')) ? 'text-orange-600' : 'text-green-600' },
-                { label: 'Reentrancy Risk', value: result.vulnerabilities.some(v => v.swcId === 'SWC-107') ? 'Critical' : 'None', color: result.vulnerabilities.some(v => v.swcId === 'SWC-107') ? 'text-red-600' : 'text-green-600' },
-                { label: 'Integer Safety', value: result.vulnerabilities.some(v => v.swcId === 'SWC-101') ? 'At Risk' : 'Protected', color: result.vulnerabilities.some(v => v.swcId === 'SWC-101') ? 'text-orange-600' : 'text-green-600' }
+                { label: 'Reentrancy Risk', value: result.vulnerabilities.some(v => {
+                  const id = getRegistryId(v);
+                  return id === 'SWC-107' || id === 'CSR-001' || id === 'VSR-001';
+                }) ? 'Critical' : 'None', color: result.vulnerabilities.some(v => {
+                  const id = getRegistryId(v);
+                  return id === 'SWC-107' || id === 'CSR-001' || id === 'VSR-001';
+                }) ? 'text-red-600' : 'text-green-600' },
+                { label: 'Integer Safety', value: result.vulnerabilities.some(v => {
+                  const id = getRegistryId(v);
+                  return id === 'SWC-101' || id === 'CSR-019' || id === 'VSR-003';
+                }) ? 'At Risk' : 'Protected', color: result.vulnerabilities.some(v => {
+                  const id = getRegistryId(v);
+                  return id === 'SWC-101' || id === 'CSR-019' || id === 'VSR-003';
+                }) ? 'text-orange-600' : 'text-green-600' }
               ].map((item, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
                   <span className="text-sm text-gray-700">{item.label}</span>
