@@ -1,22 +1,25 @@
-# 🛡️ SmartAudit AI - AI-Powered Smart Contract Auditor
+# 🛡️ SmartAudit - AI-Powered Smart Contract Auditor
 
 A comprehensive web application that performs dual-layer security analysis of smart contracts (Solidity, Vyper, Cairo) using static pattern detection and dynamic AI-powered analysis with industry-standard security classifications.
 
 ## 🌟 Features
 
 ### Multi-Language Support
+
 - **Solidity**: Full support for Ethereum smart contracts (.sol)
 - **Vyper**: Python-like smart contract language analysis (.vy)
 - **Cairo**: StarkNet smart contract security auditing (.cairo)
 - **Auto-Detection**: Automatically detects contract language from code or file extension
 
 ### Dual-Layer Security Analysis
+
 - **Static Analysis**: Fast pattern-based vulnerability detection using SWC Registry and language-specific patterns
 - **Dynamic Analysis (AI-Powered)**: Advanced AI reasoning to understand complex business logic, state transitions, and edge cases
 - **Standards Compliance**: SCSVS v2 framework validation and EthTrust security level assessment
 - **Smart Reports**: Comprehensive vulnerability reports with actionable recommendations and risk scoring
 
 ### Security Standards
+
 - **SWC Registry**: 35+ Smart Contract Weakness patterns with CWE mappings (Solidity)
 - **VSR (Vyper Security Registry)**: 15 Vyper-specific vulnerability patterns with official documentation
 - **CSR (Cairo Security Registry)**: 20 Cairo/StarkNet security patterns with OpenZeppelin references
@@ -25,6 +28,7 @@ A comprehensive web application that performs dual-layer security analysis of sm
 - **Language-Specific Patterns**: Dedicated vulnerability detection for Solidity, Vyper, and Cairo
 
 ### Key Features
+
 - ✅ Multi-language support (Solidity, Vyper, Cairo)
 - ✅ Automatic language detection
 - ✅ Real-time code analysis with Monaco Editor
@@ -43,18 +47,21 @@ A comprehensive web application that performs dual-layer security analysis of sm
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js 18+ installed
 - Groq API key (already configured)
 
 ### Installation
 
 1. **Install Dependencies**
+
 ```bash
 npm install
 ```
 
 2. **Environment Setup**
-Create a `.env` file in the root directory with your Groq API key:
+   Create a `.env` file in the root directory with your Groq API key:
+
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 GROQ_MODEL=llama-3.3-70b-versatile
@@ -64,12 +71,13 @@ GROQ_MODEL=llama-3.3-70b-versatile
 > A sample `.env.local` file is provided for reference.
 
 3. **Run Development Server**
+
 ```bash
 npm run dev
 ```
 
 4. **Open Browser**
-Navigate to [http://localhost:3000](http://localhost:3000)
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 📁 Project Structure
 
@@ -115,6 +123,7 @@ src/
 ## 🔧 Technology Stack
 
 ### Frontend
+
 - **Framework**: Next.js 14 with App Router
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS (Light Theme)
@@ -126,6 +135,7 @@ src/
 - **State**: React Hooks
 
 ### Backend
+
 - **Runtime**: Next.js API Routes
 - **AI**: Groq API (Llama 3.3 70B Versatile)
 - **Parser**: @solidity-parser/parser (v0.18.0)
@@ -134,7 +144,9 @@ src/
 ## 📊 Security Standards
 
 ### SWC (Smart Contract Weakness) Registry
+
 35+ weakness patterns for Solidity including:
+
 - SWC-107: Reentrancy
 - SWC-105: Unprotected Ether Withdrawal
 - SWC-106: Unprotected SELFDESTRUCT
@@ -143,7 +155,9 @@ src/
 - And 30+ more patterns...
 
 ### VSR (Vyper Security Registry)
+
 15 Vyper-specific vulnerability patterns:
+
 - VSR-001: Reentrancy in Vyper contracts
 - VSR-002: Unchecked external calls (send/raw_call)
 - VSR-003: Integer overflow and arithmetic issues
@@ -163,7 +177,9 @@ src/
 - **CWE Mappings**: Industry-standard weakness enumeration
 
 ### CSR (Cairo Security Registry)
+
 20 Cairo/StarkNet-specific security patterns:
+
 - CSR-001: Reentrancy in Cairo contracts
 - CSR-002: Unchecked external calls
 - CSR-003: felt252 overflow vulnerabilities
@@ -188,7 +204,9 @@ src/
 - **CWE Mappings**: Comprehensive weakness classification
 
 ### SCSVS v2 Framework
+
 50+ security controls across categories:
+
 - Architecture & Design
 - Access Control
 - Arithmetic Operations
@@ -200,6 +218,7 @@ src/
 - And more...
 
 ### EthTrust Security Levels
+
 - **Level 1**: Critical - Unsafe (Critical vulnerabilities)
 - **Level 2**: High Risk (High severity issues)
 - **Level 3**: Medium Risk (Medium issues only, Vyper, or Cairo code into the editor
@@ -207,32 +226,34 @@ src/
 - **Load Sample**: Test with pre-loaded contracts in all supported languages
 - **Name Your Contract**: Add a custom name for organized reports
 - **Auto-Detection**: Language is automatically detected from code or file extension
+
 ## 🎯 How to Use
 
 ### Step 1: Upload Your Contract
+
 - **Paste Code**: Directly paste your Solidity code into the editor
 - **Upload File**: Upload a `.sol` file from your computer
 - **Load Sample**: Test with pre-loaded vulnerable contracts
-6 pre-loaded examples for testing:
+  6 pre-loaded examples for testing:
 
 **Solidity:**
+
 1. **Vulnerable Bank**: Classic reentrancy vulnerability (SWC-107)
 2. **Unprotected Contract**: Missing access controls (SWC-105)
 
-**Vyper:**
-3. **Vulnerable Vyper Wallet**: Unchecked send and access control issues
-4. **Secure Vyper Token**: Best practices with proper decorators
+**Vyper:** 3. **Vulnerable Vyper Wallet**: Unchecked send and access control issues 4. **Secure Vyper Token**: Best practices with proper decorators
 
-**Cairo:**
-5. **Unsafe Cairo Vault**: Reentrancy and missing validation
-6. **Secure Cairo Contract**: Proper patterns and safety checks
-  - **Overview**: Security score, risk level, EthTrust level, key metrics
-  - **Vulnerabilities**: Detailed list with severity, line numbers, code snippets
-  - **Security Standards**: SWC Registry and SCSVS v2 compliance
-  - **Analytics**: Charts, risk distribution, recommendations
+**Cairo:** 5. **Unsafe Cairo Vault**: Reentrancy and missing validation 6. **Secure Cairo Contract**: Proper patterns and safety checks
+
+- **Overview**: Security score, risk level, EthTrust level, key metrics
+- **Vulnerabilities**: Detailed list with severity, line numbers, code snippets
+- **Security Standards**: SWC Registry and SCSVS v2 compliance
+- **Analytics**: Charts, risk distribution, recommendations
 
 ### Step 3: Download Reports
+
 Click the download button to export in multiple formats:
+
 - **PDF Report**: Professional formatted document with charts
 - **JSON Data**: Structured data for integration
 - **Text File**: Plain text for easy sharing
@@ -240,6 +261,7 @@ Click the download button to export in multiple formats:
 ## 📦 Report Contents
 
 ### Vulnerability Details
+
 - Complete list of detected vulnerabilities
 - Severity levels (Critical, High, Medium, Low)
 - Eecurity classification mappings:
@@ -251,18 +273,21 @@ Click the download button to export in multiple formats:
 - AI-enhanced descriptions and explanations
 
 ### Security Metrics
+
 - Overall security score (0-100)
 - EthTrust security level (1-5)
 - Risk distribution analytics
 - Vulnerability category breakdown
 
 ### Compliance Checks
+
 - SCSVS v2 compliance validation
 - Passed and failed security controls
 - Standards coverage percentage
 - Detailed control assessments
 
 ### Recommendations
+
 - Actionable fix recommendations
 - Code improvement suggestions
 - Best practice guidelines
@@ -271,6 +296,7 @@ Click the download button to export in multiple formats:
 ## 🔍 Sample Contracts
 
 4 pre-loaded examples for testing:
+
 1. **Vulnerable Bank**: Classic reentrancy vulnerability (SWC-107)
 2. **Unprotected Contract**: Missing access controls (SWC-105)
 3. **Integer Overflow**: Arithmetic vulnerabilities (SWC-101)
@@ -279,9 +305,11 @@ Click the download button to export in multiple formats:
 ## 🌐 API Endpoints
 
 ### POST /api/analyze
+
 Analyzes smart contract code and returns comprehensive security report.
 
 **Request Body:**
+
 ```json
 {
   "contractCode": "string",
@@ -290,7 +318,8 @@ Analyzes smart contract code and returns comprehensive security report.
 ```
 
 **Response:**
-```json
+
+````json
 {
   "analysisId": "uuid",
   "timestamp": "ISO-8601",
@@ -331,7 +360,7 @@ Analyzes smart contract code and returns comprehensive security report.
     "Fix critical reentrancy in withdraw function",
     "Add access control modifiers",
     "..."
-  ]Multi-Registry Support**: 
+  ]Multi-Registry Support**:
   - SWC Registry (35+ Solidity patterns)
   - VSR (15 Vyper patterns with official docs)
   - CSR (20 Cairo/StarkNet patterns)
@@ -378,14 +407,16 @@ Analyzes smart contract code and returns comprehensive security report.
 ### Build for Production
 ```bash
 npm run build
-```
+````
 
 ### Start Production Server
+
 ```bash
 npm start
 ```
 
 ### Lint Code
+
 ```bash
 npm run lint
 ```
@@ -419,7 +450,8 @@ npm run lint
 5. **Security Standards**: SWC, SCSVS v2, EthTrust information
 6. **Report Contents**: What's included in downloaded reports
 7. **Footer**: Links and resources
-s
+   s
+
 - Contribute to VSR (Vyper Security Registry) or CSR (Cairo Security Registry)
 - Improve AI analysis prompts
 - Enhance UI/UX components
@@ -429,6 +461,7 @@ s
 - Add support for new smart contract languages
 
 Contributions welcome! Feel free to:
+
 - Ax] Multi-language support (Solidity, Vyper, Cairo)
 - [x] Vyper Security Registry (VSR) with 15 patterns
 - [x] Cairo Security Registry (CSR) with 20 patterns
@@ -441,8 +474,11 @@ Contributions welcome! Feel free to:
 - [ ] Custom rule configuration
 - [ ] Gas optimization suggestions
 - [ ] Formal verification integ
+
 ## 🚧 Roadmap
-and comprehensive security registries:**
+
+and comprehensive security registries:\*\*
+
 - **SWC Registry** for Solidity
 - **VSR (Vyper Security Registry)** for Vyper
 - **CSR (Cairo Security Registry)** for Cairo/StarkNet
