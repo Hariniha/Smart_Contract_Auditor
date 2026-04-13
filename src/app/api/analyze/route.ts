@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { performStaticAnalysis } from '@/lib/static-analyzer';
 import { detectLanguage, SmartContractLanguage } from '@/lib/language-detector';
-import { analyzeWithAI, enhanceVulnerabilityDescription } from '@/lib/groq-service';
+import { analyzeWithAI, enhanceVulnerabilityDescription, performFullAIAnalysis } from '@/lib/groq-service';
 import { calculateEthTrustLevel, getEthTrustLevelDefinition } from '@/lib/ethtrust';
 import { SCSVS_V2_CONTROLS, calculateSCSVSCompliance } from '@/lib/scsvs-v2';
 import { calculateSecurityScore, getRiskLevel } from '@/lib/utils';
@@ -64,37 +64,79 @@ export async function POST(request: NextRequest) {
       detectedLanguage = staticResult.language || 'solidity';
     }
 
-    // AI Enhancement for top vulnerabilities
-    if (analysisTypes?.includes('ai') || !analysisTypes) {
-      const topVulnerabilities = allVulnerabilities
-        .filter(v => v.severity === 'Critical' || v.severity === 'High')
-        .slice(0, 3);
-
-      for (const vuln of topVulnerabilities) {
-        try {
-          const enhanced = await enhanceVulnerabilityDescription({
-            name: vuln.name,
-            type: vuln.type,
-            codeSnippet: vuln.codeSnippet,
-            lineNumber: vuln.lineNumber
-          });
-
-          // Only update if we got valid responses
-          if (enhanced.enhancedDescription && enhanced.enhancedDescription !== vuln.name) {
-            vuln.description = enhanced.enhancedDescription;
+    // Full AI Analysis - Scans code for ADDITIONAL vulnerabilities
+    if (!analysisTypes || analysisTypes.includes('ai')) {
+      try {
+        const aiDiscoveredVulns = await performFullAIAnalysis(contractCode, detectedLanguage);
+        
+        // Add AI-discovered vulnerabilities and mark them as 'ai-detected'
+        for (const aiVuln of aiDiscoveredVulns) {
+          // Avoid duplicate detection - check if similar vulnerability already exists
+          const isDuplicate = allVulnerabilities.some(
+            v => v.name.toLowerCase() === aiVuln.name.toLowerCase() && 
+                 Math.abs(v.lineNumber - aiVuln.lineNumber) < 3 // Within 3 lines
+          );
+          
+          if (!isDuplicate) {
+            allVulnerabilities.push({
+              id: uuidv4(),
+              name: aiVuln.name,
+              type: 'AI-Discovered',
+              description: aiVuln.description,
+              severity: aiVuln.severity,
+              lineNumber: aiVuln.lineNumber,
+              codeSnippet: aiVuln.codeSnippet,
+              exploitationScenario: aiVuln.exploitationScenario,
+              recommendation: aiVuln.recommendation,
+              detectionMethod: 'ai-detected', // Mark as AI-found
+              confidence: aiVuln.confidence,
+              cweIds: aiVuln.cweIds,
+              swcId: aiVuln.cweIds[0] || 'N/A',
+              references: [],
+              scsvIds: []
+            });
           }
-          if (enhanced.exploitationScenario) {
-            vuln.exploitationScenario = enhanced.exploitationScenario;
-          }
-          if (enhanced.recommendation) {
-            vuln.recommendation = enhanced.recommendation;
-          }
-          vuln.detectionMethod = 'hybrid'; // Static + AI
-        } catch (error) {
-          console.error('Error enhancing vulnerability:', error);
-          // Continue with static analysis results - don't fail the entire request
-          vuln.detectionMethod = 'static';
         }
+      } catch (error) {
+        console.error('Error performing full AI analysis:', error);
+        // Continue with static results if AI analysis fails
+      }
+    }
+
+    // AI Enhancement for top Critical/High vulnerabilities
+    const topVulnerabilities = allVulnerabilities
+      .filter(v => v.severity === 'Critical' || v.severity === 'High')
+      .slice(0, 3);
+
+    for (const vuln of topVulnerabilities) {
+      try {
+        const enhanced = await enhanceVulnerabilityDescription({
+          name: vuln.name,
+          type: vuln.type,
+          codeSnippet: vuln.codeSnippet,
+          lineNumber: vuln.lineNumber
+        });
+
+        // Only update if we got valid responses
+        if (enhanced.enhancedDescription && enhanced.enhancedDescription !== vuln.name) {
+          vuln.description = enhanced.enhancedDescription;
+        }
+        if (enhanced.exploitationScenario) {
+          vuln.exploitationScenario = enhanced.exploitationScenario;
+        }
+        if (enhanced.recommendation) {
+          vuln.recommendation = enhanced.recommendation;
+        }
+        
+        // Update detection method for already-static vulns, or mark AI-detected as 'ai-enhanced'
+        if (vuln.detectionMethod === 'static') {
+          vuln.detectionMethod = 'hybrid'; // Static + AI enhancement
+        } else if (vuln.detectionMethod === 'ai-detected') {
+          vuln.detectionMethod = 'ai-optimized'; // AI-detected + further enhanced
+        }
+      } catch (error) {
+        console.error('Error enhancing vulnerability:', error);
+        // Continue with current results - don't fail the entire request
       }
     }
 

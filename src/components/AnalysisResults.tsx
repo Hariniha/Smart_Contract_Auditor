@@ -31,14 +31,20 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold mb-2 text-gray-900">Analysis Results</h1>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <p className="text-sm text-gray-600">{result.fileName}</p>
               {result.language && (
                 <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 border border-emerald-300">
                   {result.language.charAt(0).toUpperCase() + result.language.slice(1)}
+                </span>
+              )}
+              {result.vulnerabilities.some(v => v.detectionMethod === 'ai-detected' || v.detectionMethod === 'ai-optimized') && (
+                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 border border-purple-300 flex items-center gap-1">
+                  <span>🤖</span>
+                  AI Enhanced Analysis
                 </span>
               )}
             </div>
@@ -53,6 +59,22 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
             </button>
           </div>
         </div>
+
+        {/* AI Analysis Info Banner */}
+        {result.vulnerabilities.some(v => v.detectionMethod === 'ai-detected' || v.detectionMethod === 'ai-optimized') && (
+          <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-4 mt-4">
+            <div className="flex items-start gap-3">
+              <div className="text-2xl">🤖</div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-purple-900">Advanced AI Analysis Included</h3>
+                <p className="text-sm text-purple-700 mt-1">
+                  This analysis includes vulnerabilities discovered by AI pattern recognition in addition to static analysis. 
+                  AI-detected findings are marked with a purple badge in the vulnerabilities list.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Tabs */}

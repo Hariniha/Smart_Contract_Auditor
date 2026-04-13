@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Vulnerability } from '@/types';
-import { ChevronDown, ChevronUp, ExternalLink, Code, AlertTriangle } from 'lucide-react';
+import { ChevronDown, ChevronUp, ExternalLink, Code, AlertTriangle, Zap, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface VulnerabilitiesListProps {
@@ -24,19 +24,37 @@ export default function VulnerabilitiesList({ vulnerabilities, language }: Vulne
   const getRegistryId = (vuln: Vulnerability): string => {
     const lang = language?.toLowerCase() || 'solidity';
     if (lang === 'cairo') {
-      // Try to extract CSR ID from type field
       return vuln.type?.startsWith('CSR-') ? vuln.type : 'CSR-N/A';
     } else if (lang === 'vyper') {
-      // Try to extract VSR ID from type field
       return vuln.type?.startsWith('VSR-') ? vuln.type : 'VSR-N/A';
     } else {
-      // Solidity - SWC
       return vuln.swcId || 'SWC-N/A';
     }
   };
+  
+  // Get detection method badge
+  const getDetectionBadge = (method: string) => {
+    switch(method) {
+      case 'ai-detected':
+        return { bg: 'bg-purple-100', text: 'text-purple-700', label: '🤖 AI-Detected', icon: Zap };
+      case 'ai-optimized':
+        return { bg: 'bg-indigo-100', text: 'text-indigo-700', label: '✨ AI-Optimized', icon: Zap };
+      case 'hybrid':
+        return { bg: 'bg-cyan-100', text: 'text-cyan-700', label: '⚡ Static + AI', icon: BarChart3 };
+      case 'static':
+      default:
+        return { bg: 'bg-blue-100', text: 'text-blue-700', label: '📊 Static', icon: BarChart3 };
+    }
+  };
+
   const sortedVulns = [...filteredVulns].sort((a, b) => 
     severityOrder[a.severity] - severityOrder[b.severity]
   );
+
+  // Count AI findings
+  const aiDetectedCount = vulnerabilities.filter(v => v.detectionMethod === 'ai-detected').length;
+  const aiOptimizedCount = vulnerabilities.filter(v => v.detectionMethod === 'ai-optimized').length;
+  const totalAIFindings = aiDetectedCount + aiOptimizedCount;
 
   if (vulnerabilities.length === 0) {
     return (
@@ -52,139 +70,194 @@ export default function VulnerabilitiesList({ vulnerabilities, language }: Vulne
 
   return (
     <div className="space-y-6">
+      {/* AI Analysis Summary */}
+      {totalAIFindings > 0 && (
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-4">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Zap className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-purple-900">AI Analysis Report</h3>
+                <p className="text-sm text-purple-700">
+                  {aiDetectedCount > 0 && `${aiDetectedCount} new vulnerabilities discovered by AI`}
+                  {aiDetectedCount > 0 && aiOptimizedCount > 0 && ' + '}
+                  {aiOptimizedCount > 0 && `${aiOptimizedCount} findings enhanced with AI insights`}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Filters */}
-      <div className="flex items-center space-x-2">
-        <span className="text-sm text-gray-600 font-medium">Filter by severity:</span>
-        {['all', 'critical', 'high', 'medium', 'low'].map((filter) => (
-          <button
-            key={filter}
-            onClick={() => setSeverityFilter(filter)}
-            className={cn(
-              'px-3 py-1 rounded-full text-xs font-medium transition-colors',
-              severityFilter === filter
-                ? 'bg-emerald-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            )}
-          >
-            {filter.charAt(0).toUpperCase() + filter.slice(1)}
-          </button>
-        ))}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center space-x-2 flex-wrap">
+          <span className="text-sm text-gray-600 font-medium">Filter by severity:</span>
+          {['all', 'critical', 'high', 'medium', 'low'].map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setSeverityFilter(filter)}
+              className={cn(
+                'px-3 py-1 rounded-full text-xs font-medium transition-colors',
+                severityFilter === filter
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              )}
+            >
+              {filter.charAt(0).toUpperCase() + filter.slice(1)}
+            </button>
+          ))}
+        </div>
+        <div className="text-sm text-gray-600">
+          Showing <span className="font-bold text-gray-900">{filteredVulns.length}</span> of <span className="font-bold text-gray-900">{vulnerabilities.length}</span>
+        </div>
       </div>
 
       {/* Vulnerabilities List */}
       <div className="space-y-4">
-        {sortedVulns.map((vuln) => (
-          <div
-            key={vuln.id}
-            className="bg-white border border-gray-200 rounded-lg p-4 hover:border-emerald-500 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
-            style={{
-              borderLeftWidth: '4px',
-              borderLeftColor: getSeverityColor(vuln.severity)
-            }}
-          >
+        {sortedVulns.map((vuln) => {
+          const detectionBadge = getDetectionBadge(vuln.detectionMethod);
+          const BadgeIcon = detectionBadge.icon;
+          const isAIFinding = vuln.detectionMethod === 'ai-detected' || vuln.detectionMethod === 'ai-optimized';
+          
+          return (
             <div
-              className="cursor-pointer"
-              onClick={() => setExpandedId(expandedId === vuln.id ? null : vuln.id)}
+              key={vuln.id}
+              className={cn(
+                'bg-white border-2 rounded-lg p-4 hover:shadow-md transition-all duration-200 cursor-pointer',
+                isAIFinding 
+                  ? 'border-purple-300 bg-gradient-to-r from-white to-purple-50' 
+                  : 'border-gray-200 hover:border-emerald-500'
+              )}
+              style={{
+                borderLeftWidth: isAIFinding ? '6px' : '4px',
+                borderLeftColor: isAIFinding ? '#a855f7' : getSeverityColor(vuln.severity)
+              }}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-2">
-                    <span className={cn('badge', `severity-${vuln.severity.toLowerCase()}`)}>
-                      {vuln.severity}
-                    </span>
-                    <span className="text-xs text-gray-500 font-medium">{getRegistryId(vuln)}</span>
-                    <span className="text-xs text-gray-500 font-medium">Line {vuln.lineNumber}</span>
+              <div
+                className="cursor-pointer"
+                onClick={() => setExpandedId(expandedId === vuln.id ? null : vuln.id)}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2 flex-wrap gap-2">
+                      <span className={cn('badge', `severity-${vuln.severity.toLowerCase()}`)}>
+                        {vuln.severity}
+                      </span>
+                      
+                      {/* Detection Method Badge */}
+                      <span className={cn('text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1', detectionBadge.bg, detectionBadge.text)}>
+                        {isAIFinding && <Zap className="w-3 h-3" />}
+                        {detectionBadge.label}
+                      </span>
+                      
+                      <span className="text-xs text-gray-500 font-medium">{getRegistryId(vuln)}</span>
+                      <span className="text-xs text-gray-500 font-medium">Line {vuln.lineNumber}</span>
+                    </div>
+                    <h3 className="text-lg font-semibold mb-1 text-gray-900">{vuln.name}</h3>
+                    <p className="text-sm text-gray-600">{vuln.description}</p>
                   </div>
-                  <h3 className="text-lg font-semibold mb-1 text-gray-900">{vuln.name}</h3>
-                  <p className="text-sm text-gray-600">{vuln.description}</p>
+                  <button className="ml-4 text-gray-400 hover:text-gray-900 flex-shrink-0">
+                    {expandedId === vuln.id ? (
+                      <ChevronUp className="w-5 h-5" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5" />
+                    )}
+                  </button>
                 </div>
-                <button className="ml-4 text-gray-400 hover:text-gray-900">
-                  {expandedId === vuln.id ? (
-                    <ChevronUp className="w-5 h-5" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
 
-              {expandedId === vuln.id && (
-                <div className="mt-4 pt-4 border-t border-gray-200 space-y-4 animate-slide-up">
-                  {/* Code Snippet */}
-                  <div>
-                    <div className="flex items-center mb-2">
-                      <Code className="w-4 h-4 mr-2 text-gray-600" />
-                      <span className="text-sm font-semibold text-gray-900">Code Snippet (Line {vuln.lineNumber})</span>
-                    </div>
-                    <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 overflow-x-auto">
-                      <code className="text-sm text-gray-100 font-mono">
-                        {vuln.codeSnippet}
-                      </code>
-                    </div>
-                  </div>
-
-                  {/* Exploitation Scenario */}
-                  <div>
-                    <h4 className="text-sm font-semibold mb-2 text-red-600">
-                      Exploitation Scenario
-                    </h4>
-                    <p className="text-sm text-gray-700 bg-red-50 p-3 rounded-lg border border-red-200">
-                      {vuln.exploitationScenario}
-                    </p>
-                  </div>
-
-                  {/* Recommendation */}
-                  <div>
-                    <h4 className="text-sm font-semibold mb-2 text-green-400">
-                      Recommended Fix
-                    </h4>
-                    <p className="text-sm text-gray-400 bg-green-900/10 p-3 rounded-lg border border-green-900/30">
-                      {vuln.recommendation}
-                    </p>
-                  </div>
-
-                  {/* Metadata */}
-                  <div className="grid md:grid-cols-2 gap-4 text-sm">
+                {expandedId === vuln.id && (
+                  <div className="mt-4 pt-4 border-t border-gray-200 space-y-4 animate-slide-up">
+                    {/* Code Snippet */}
                     <div>
-                      <span className="text-gray-600">Detection Method:</span>{' '}
-                      <span className="text-gray-900 font-medium">{vuln.detectionMethod}</span>
+                      <div className="flex items-center mb-2">
+                        <Code className="w-4 h-4 mr-2 text-gray-600" />
+                        <span className="text-sm font-semibold text-gray-900">Code Snippet (Line {vuln.lineNumber})</span>
+                      </div>
+                      <div className="bg-gray-900 p-3 rounded-lg border border-gray-700 overflow-x-auto">
+                        <code className="text-sm text-gray-100 font-mono">
+                          {vuln.codeSnippet}
+                        </code>
+                      </div>
                     </div>
+
+                    {/* Exploitation Scenario */}
                     <div>
-                      <span className="text-gray-600">Confidence:</span>{' '}
-                      <span className="text-gray-900 font-medium">{vuln.confidence}</span>
+                      <h4 className="text-sm font-semibold mb-2 text-red-600">
+                        Exploitation Scenario
+                      </h4>
+                      <p className="text-sm text-gray-700 bg-red-50 p-3 rounded-lg border border-red-200">
+                        {vuln.exploitationScenario}
+                      </p>
                     </div>
-                    {vuln.cweIds.length > 0 && (
+
+                    {/* Recommendation */}
+                    <div>
+                      <h4 className="text-sm font-semibold mb-2 text-green-600">
+                        Recommended Fix
+                      </h4>
+                      <p className="text-sm text-gray-700 bg-green-50 p-3 rounded-lg border border-green-200">
+                        {vuln.recommendation}
+                      </p>
+                    </div>
+
+                    {/* AI Analysis Note */}
+                    {isAIFinding && (
+                      <div className="bg-purple-50 border border-purple-200 p-3 rounded-lg">
+                        <p className="text-sm text-purple-700">
+                          <strong>🤖 AI Analysis:</strong> This vulnerability was identified and analyzed using advanced AI pattern recognition.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Metadata */}
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                       <div>
-                        <span className="text-gray-600">CWE IDs:</span>{' '}
-                        <span className="text-gray-900 font-medium">{vuln.cweIds.join(', ')}</span>
+                        <span className="text-gray-600">Detection Method:</span>{' '}
+                        <span className={cn('font-medium', detectionBadge.text)}>
+                          {detectionBadge.label.replace(/[🤖✨⚡📊]/g, '').trim()}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Confidence:</span>{' '}
+                        <span className="text-gray-900 font-medium">{vuln.confidence}</span>
+                      </div>
+                      {vuln.cweIds.length > 0 && (
+                        <div>
+                          <span className="text-gray-600">CWE IDs:</span>{' '}
+                          <span className="text-gray-900 font-medium">{vuln.cweIds.join(', ')}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* References */}
+                    {vuln.references.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold mb-2 text-gray-900">References</h4>
+                        <div className="space-y-1">
+                          {vuln.references.map((ref, index) => (
+                            <a
+                              key={index}
+                              href={ref}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center text-sm text-blue-600 hover:text-blue-700"
+                            >
+                              <ExternalLink className="w-3 h-3 mr-1" />
+                              {ref}
+                            </a>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
-
-                  {/* References */}
-                  {vuln.references.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-semibold mb-2 text-gray-900">References</h4>
-                      <div className="space-y-1">
-                        {vuln.references.map((ref, index) => (
-                          <a
-                            key={index}
-                            href={ref}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center text-sm text-blue-600 hover:text-blue-700"
-                          >
-                            <ExternalLink className="w-3 h-3 mr-1" />
-                            {ref}
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

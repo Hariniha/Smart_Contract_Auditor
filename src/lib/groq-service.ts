@@ -209,3 +209,90 @@ Return JSON with:
     };
   }
 }
+
+export interface AIDiscoveredVulnerability {
+  name: string;
+  description: string;
+  severity: 'Critical' | 'High' | 'Medium' | 'Low' | 'Info';
+  lineNumber: number;
+  codeSnippet: string;
+  exploitationScenario: string;
+  recommendation: string;
+  cweIds: string[];
+  confidence: 'High' | 'Medium' | 'Low';
+}
+
+export async function performFullAIAnalysis(
+  contractCode: string,
+  language: string = 'solidity'
+): Promise<AIDiscoveredVulnerability[]> {
+  try {
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: `You are an expert ${language} smart contract security auditor with deep knowledge of common vulnerabilities, gas optimization issues, and business logic flaws.
+          
+Your task is to scan ${language} contract code and find ALL potential security vulnerabilities and issues.
+
+Return a JSON array of vulnerabilities found. For each vulnerability include:
+- name: Short vulnerability name
+- description: Detailed description
+- severity: Critical|High|Medium|Low|Info
+- lineNumber: Approximate line number (or best guess)
+- codeSnippet: The problematic code (5-10 lines max)
+- exploitationScenario: How to exploit this
+- recommendation: How to fix it
+- cweIds: Array of relevant CWE IDs
+- confidence: High|Medium|Low (your confidence this is a real issue)
+
+Focus on:
+1. Logic errors and state management issues
+2. Reentrancy and call chain vulnerabilities
+3. Integer overflow/underflow
+4. Access control issues
+5. Unchecked external calls
+6. Front-running vulnerabilities
+7. Gas optimization issues
+8. Best practice violations
+
+If you don't find vulnerabilities, return an empty array: []`
+        },
+        {
+          role: 'user',
+          content: `Analyze this ${language} contract for ALL potential vulnerabilities:\n\n\`\`\`${language}\n${contractCode}\n\`\`\`\n\nReturn ONLY a valid JSON array of vulnerabilities. Start with [ and end with ].`
+        }
+      ],
+      model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+      temperature: 0.3,
+      max_tokens: 4000,
+      response_format: { type: 'json_object' }
+    });
+
+    const content = completion.choices[0]?.message?.content || '[]';
+    
+    try {
+      // Try to extract array from JSON object if wrapped
+      const parsed = JSON.parse(content);
+      const vulnerabilities = Array.isArray(parsed) ? parsed : parsed.vulnerabilities || [];
+      
+      return vulnerabilities.map((vuln: any) => ({
+        name: vuln.name || 'Unknown Vulnerability',
+        description: vuln.description || 'No description provided',
+        severity: vuln.severity || 'Medium',
+        lineNumber: vuln.lineNumber || 0,
+        codeSnippet: vuln.codeSnippet || '',
+        exploitationScenario: vuln.exploitationScenario || 'N/A',
+        recommendation: vuln.recommendation || 'Manual review recommended',
+        cweIds: Array.isArray(vuln.cweIds) ? vuln.cweIds : [],
+        confidence: vuln.confidence || 'Medium'
+      }));
+    } catch (parseError) {
+      console.error('Error parsing AI analysis response:', content);
+      return [];
+    }
+  } catch (error) {
+    console.error('Error performing full AI analysis:', error);
+    return [];
+  }
+}

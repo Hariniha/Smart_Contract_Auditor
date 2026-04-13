@@ -41,7 +41,7 @@ export default function OverviewDashboard({ result }: OverviewDashboardProps) {
       )}
 
       {/* Key Metrics */}
-      <div className="grid md:grid-cols-4 gap-4">
+      <div className="grid md:grid-cols-5 gap-4">
         <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
           <div className="flex items-center justify-between mb-2">
             <span className="text-gray-600 text-sm font-medium">Security Score</span>
@@ -82,6 +82,17 @@ export default function OverviewDashboard({ result }: OverviewDashboardProps) {
           <div className="text-xs text-gray-500 mt-1">
             {result.scsvCompliance.passed}/{result.scsvCompliance.passed + result.scsvCompliance.failed} checks
           </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-purple-700 text-sm font-medium">AI Analysis</span>
+            <div className="w-5 h-5 text-purple-600">🤖</div>
+          </div>
+          <div className="text-3xl font-bold text-purple-600">
+            {result.vulnerabilities.filter(v => v.detectionMethod === 'ai-detected' || v.detectionMethod === 'ai-optimized').length}
+          </div>
+          <div className="text-xs text-purple-600 mt-1">findings by AI</div>
         </div>
       </div>
 
