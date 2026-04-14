@@ -94,19 +94,19 @@ export default function HomePage() {
             </div>
 
             {/* Main Heading */}
-            <h1 className='text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white'>
+            <h1 className='text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight text-white'>
               Secure Your{' '}
               <span className='text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400'>
                 Smart Contracts
               </span>
               <br />
-              <span className='text-2xl md:text-3xl font-semibold text-gray-300'>
+              <span className='text-xl md:text-2xl font-semibold text-gray-300'>
                 Solidity • Cairo • Vyper
               </span>
             </h1>
 
             {/* Description */}
-            <p className='text-base md:text-lg text-gray-300 mb-8 leading-relaxed text-justify'>
+            <p className='text-sm md:text-base text-gray-300 mb-8 leading-relaxed text-justify'>
               Comprehensive security analysis for <strong>Solidity (EVM)</strong>, <strong>Cairo (StarkNet)</strong>,
               and <strong>Vyper (Python-based)</strong> smart contracts. Combining
               <strong> static pattern detection</strong> with{' '}
@@ -204,10 +204,10 @@ export default function HomePage() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             className='max-w-3xl mx-auto text-center'>
-            <h2 className='text-3xl md:text-4xl font-bold mb-6 text-gray-900'>
+            <h2 className='text-2xl md:text-3xl font-bold mb-6 text-gray-900'>
               Why Smart Contract Security Matters
             </h2>
-            <p className='text-lg text-gray-600 mb-8'>
+            <p className='text-base text-gray-600 mb-8'>
               Over $3 billion lost to smart contract vulnerabilities in 2023. A
               single bug can cost millions. Our AI-powered auditor helps you
               catch vulnerabilities before they become exploits.
@@ -236,7 +236,7 @@ export default function HomePage() {
                   key={index}
                   className='bg-white border-2 border-gray-200 rounded-xl p-6 shadow-md hover:shadow-xl hover:border-emerald-500 transition-all duration-200'>
                   <div className='mb-4'>{item.icon}</div>
-                  <h3 className='text-xl font-bold mb-2 text-gray-900'>
+                  <h3 className='text-lg font-bold mb-2 text-gray-900'>
                     {item.title}
                   </h3>
                   <p className='text-gray-600'>{item.desc}</p>
@@ -257,10 +257,10 @@ export default function HomePage() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             className='text-center mb-16'>
-            <h2 className='text-3xl md:text-4xl font-bold mb-4 text-white'>
+            <h2 className='text-2xl md:text-3xl font-bold mb-4 text-white'>
               Dual-Layer Security Analysis
             </h2>
-            <p className='text-lg text-gray-400'>
+            <p className='text-base text-gray-400'>
               Static pattern detection meets dynamic AI analysis for
               comprehensive security coverage
             </p>
@@ -322,10 +322,10 @@ export default function HomePage() {
                     {card.badge}
                   </span>
                 </div>
-                <h3 className='text-xl font-bold text-white mb-3 group-hover:text-emerald-400 transition-colors'>
+                <h3 className='text-lg font-bold text-white mb-3 group-hover:text-emerald-400 transition-colors'>
                   {card.title}
                 </h3>
-                <p className='text-sm text-gray-400 leading-relaxed'>
+                <p className='text-xs text-gray-400 leading-relaxed'>
                   {card.description}
                 </p>
               </motion.div>
@@ -342,10 +342,10 @@ export default function HomePage() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             className='text-center mb-16'>
-            <h2 className='text-3xl md:text-4xl font-bold mb-4 text-white'>
+            <h2 className='text-2xl md:text-3xl font-bold mb-4 text-white'>
               Multi-Language Support
             </h2>
-            <p className='text-lg text-gray-400'>
+            <p className='text-base text-gray-400'>
               Comprehensive security analysis across Web3&apos;s leading smart contract languages
             </p>
           </motion.div>

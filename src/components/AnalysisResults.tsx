@@ -33,7 +33,7 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
       <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold mb-2 text-gray-900">Analysis Results</h1>
+            <h1 className="text-2xl font-bold mb-2 text-gray-900">Analysis Results</h1>
             <div className="flex items-center gap-3 flex-wrap">
               <p className="text-sm text-gray-600">{result.fileName}</p>
               {result.language && (
