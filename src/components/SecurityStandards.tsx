@@ -25,56 +25,56 @@ export default function SecurityStandards({ result }: SecurityStandardsProps) {
   }, {} as Record<string, typeof result.scsvCompliance.checklist>);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* SCSVS v2 Compliance Summary */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-2xl font-bold mb-2 text-gray-900">SCSVS v2 Compliance</h3>
-            <p className="text-gray-600">Smart Contract Security Verification Standard</p>
+      <div className="bg-white border border-gray-200 rounded-lg md:rounded-xl p-4 md:p-6 shadow-md">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-0 mb-4 md:mb-6">
+          <div className="flex-1">
+            <h3 className="text-lg md:text-2xl font-bold mb-1 md:mb-2 text-gray-900">SCSVS v2 Compliance</h3>
+            <p className="text-xs md:text-base text-gray-600">Smart Contract Security Verification Standard</p>
           </div>
-          <div className="text-center">
-            <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600 mb-1">
+          <div className="text-center md:text-right">
+            <div className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600 mb-1">
               {result.scsvCompliance.percentage}%
             </div>
-            <div className="text-sm text-gray-600">Compliance</div>
+            <div className="text-xs md:text-sm text-gray-600">Compliance</div>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-emerald-700 font-medium">Passed</span>
-              <CheckCircle className="w-5 h-5 text-emerald-600" />
+        <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-6">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2 md:p-4">
+            <div className="flex items-center justify-between mb-1 md:mb-2">
+              <span className="text-emerald-700 font-medium text-xs md:text-base">Passed</span>
+              <CheckCircle className="w-4 md:w-5 h-4 md:h-5 text-emerald-600 flex-shrink-0" />
             </div>
-            <div className="text-2xl font-bold text-emerald-700 mt-2">
+            <div className="text-xl md:text-2xl font-bold text-emerald-700">
               {result.scsvCompliance.passed}
             </div>
           </div>
 
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-red-700 font-medium">Failed</span>
-              <XCircle className="w-5 h-5 text-red-600" />
+          <div className="bg-red-50 border border-red-200 rounded-lg p-2 md:p-4">
+            <div className="flex items-center justify-between mb-1 md:mb-2">
+              <span className="text-red-700 font-medium text-xs md:text-base">Failed</span>
+              <XCircle className="w-4 md:w-5 h-4 md:h-5 text-red-600 flex-shrink-0" />
             </div>
-            <div className="text-2xl font-bold text-red-700 mt-2">
+            <div className="text-xl md:text-2xl font-bold text-red-700">
               {result.scsvCompliance.failed}
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-blue-700 font-medium">Total</span>
-              <Shield className="w-5 h-5 text-blue-600" />
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 md:p-4">
+            <div className="flex items-center justify-between mb-1 md:mb-2">
+              <span className="text-blue-700 font-medium text-xs md:text-base">Total</span>
+              <Shield className="w-4 md:w-5 h-4 md:h-5 text-blue-600 flex-shrink-0" />
             </div>
-            <div className="text-2xl font-bold text-blue-700 mt-2">
+            <div className="text-xl md:text-2xl font-bold text-blue-700">
               {result.scsvCompliance.passed + result.scsvCompliance.failed}
             </div>
           </div>
         </div>
 
         {/* Compliance Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+        <div className="w-full bg-gray-200 rounded-full h-3 md:h-4 overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-1000"
             style={{ width: `${result.scsvCompliance.percentage}%` }}
@@ -84,17 +84,17 @@ export default function SecurityStandards({ result }: SecurityStandardsProps) {
 
       {/* EthTrust Security Level */}
       <div className="card" style={{ borderColor: ethTrustDef.color + '40' }}>
-        <h3 className="text-xl font-bold mb-4 flex items-center text-gray-900">
-          <Shield className="w-6 h-6 mr-2" style={{ color: ethTrustDef.color }} />
+        <h3 className="text-base md:text-xl font-bold mb-3 md:mb-4 flex items-center text-gray-900">
+          <Shield className="w-5 md:w-6 h-5 md:h-6 mr-2 flex-shrink-0" style={{ color: ethTrustDef.color }} />
           EthTrust Security Level
         </h3>
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-3xl font-bold mb-2" style={{ color: ethTrustDef.color }}>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex-1">
+            <div className="text-2xl md:text-3xl font-bold mb-2" style={{ color: ethTrustDef.color }}>
               Level {ethTrustDef.level} - {ethTrustDef.name}
             </div>
-            <p className="text-gray-600 mb-4">{ethTrustDef.description}</p>
-            <div className="inline-block px-4 py-2 rounded-full" style={{
+            <p className="text-xs md:text-base text-gray-600 mb-3 md:mb-4">{ethTrustDef.description}</p>
+            <div className="inline-block px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm" style={{
               backgroundColor: ethTrustDef.color + '20',
               color: ethTrustDef.color,
               border: `1px solid ${ethTrustDef.color}40`
@@ -102,7 +102,7 @@ export default function SecurityStandards({ result }: SecurityStandardsProps) {
               {ethTrustDef.risk}
             </div>
           </div>
-          <div className="text-8xl font-bold opacity-20" style={{ color: ethTrustDef.color }}>
+          <div className="text-6xl md:text-8xl font-bold opacity-20 text-right" style={{ color: ethTrustDef.color }}>
             {ethTrustDef.level}
           </div>
         </div>
@@ -112,38 +112,38 @@ export default function SecurityStandards({ result }: SecurityStandardsProps) {
       <div className="card">
         {result.language?.toLowerCase() === 'solidity' && (
           <>
-            <h3 className="text-xl font-bold mb-4 text-gray-900">SWC Registry Coverage</h3>
-            <p className="text-gray-600 mb-4">
+            <h3 className="text-base md:text-xl font-bold mb-2 md:mb-4 text-gray-900">SWC Registry Coverage</h3>
+            <p className="text-xs md:text-base text-gray-600 mb-3 md:mb-4">
               Smart Contract Weakness Classification patterns detected in your contract
             </p>
             
             {result.vulnerabilities.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 {Array.from(new Set(result.vulnerabilities.map(v => v.swcId).filter(id => id))).map((swcId) => {
                   const swc = getSWCById(swcId);
                   const count = result.vulnerabilities.filter(v => v.swcId === swcId).length;
                   
                   return swc && (
-                    <div key={swcId} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <div className="font-semibold text-gray-900">{swc.title}</div>
-                          <div className="text-sm text-gray-600">
+                    <div key={swcId} className="bg-gray-50 p-2 md:p-4 rounded-lg border border-gray-200">
+                      <div className="flex items-start justify-between gap-2 mb-1 md:mb-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-sm md:text-base text-gray-900">{swc.title}</div>
+                          <div className="text-xs md:text-sm text-gray-600">
                             {swcId} • {swc.cweIds.join(', ')} • {count} instance{count > 1 ? 's' : ''}
                           </div>
                         </div>
-                        <span className={`badge severity-${swc.severity.toLowerCase()}`}>
+                        <span className={`badge severity-${swc.severity.toLowerCase()} text-xs flex-shrink-0`}>
                           {swc.severity}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600">{swc.description.substring(0, 150)}...</p>
+                      <p className="text-xs md:text-sm text-gray-600">{swc.description.substring(0, 150)}...</p>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
-                <CheckCircle className="w-12 h-12 mx-auto mb-2 text-green-500" />
+              <div className="text-center py-6 md:py-8 text-gray-500">
+                <CheckCircle className="w-8 md:w-12 h-8 md:h-12 mx-auto mb-2 text-green-500" />
                 No SWC patterns detected
               </div>
             )}

@@ -1,7 +1,7 @@
 'use client';
 
 import { AnalysisResult } from '@/types';
-import { Shield, AlertTriangle, CheckCircle, TrendingUp } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, TrendingUp, Bot } from 'lucide-react';
 import { getEthTrustLevelDefinition } from '@/lib/ethtrust';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
@@ -14,10 +14,10 @@ export default function OverviewDashboard({ result }: OverviewDashboardProps) {
 
   const getLanguageBadgeStyle = (language?: string) => {
     switch(language?.toLowerCase()) {
-      case 'solidity': return { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Solidity' };
-      case 'cairo': return { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Cairo' };
-      case 'vyper': return { bg: 'bg-green-100', text: 'text-green-700', label: 'Vyper' };
-      default: return { bg: 'bg-gray-100', text: 'text-gray-700', label: language || 'Unknown' };
+      case 'solidity': return { bg: 'border border-gray-300', text: 'text-gray-700', label: 'Solidity' };
+      case 'cairo': return { bg: 'border border-gray-300', text: 'text-gray-700', label: 'Cairo' };
+      case 'vyper': return { bg: 'border border-gray-300', text: 'text-gray-700', label: 'Vyper' };
+      default: return { bg: 'border border-gray-300', text: 'text-gray-700', label: language || 'Unknown' };
     }
   };
 
@@ -36,7 +36,7 @@ export default function OverviewDashboard({ result }: OverviewDashboardProps) {
       {/* Language Badge */}
       {result.language && (
         <div className={`inline-block ${languageStyle.bg} ${languageStyle.text} px-4 py-2 rounded-lg font-semibold text-sm`}>
-          Language: {languageStyle.label}
+          {languageStyle.label}
         </div>
       )}
 
@@ -87,7 +87,7 @@ export default function OverviewDashboard({ result }: OverviewDashboardProps) {
         <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
           <div className="flex items-center justify-between mb-2">
             <span className="text-purple-700 text-sm font-medium">AI Analysis</span>
-            <div className="w-5 h-5 text-purple-600">🤖</div>
+            <Bot className="w-5 h-5 text-purple-600" />
           </div>
           <div className="text-3xl font-bold text-purple-600">
             {result.vulnerabilities.filter(v => v.detectionMethod === 'ai-detected' || v.detectionMethod === 'ai-optimized').length}

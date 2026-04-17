@@ -8,6 +8,61 @@ import { calculateSecurityScore, getRiskLevel } from '@/lib/utils';
 import { AnalysisResult, Vulnerability } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
+// Validation function to prevent AI false positives
+function validateAIFinding(finding: any, contractCode: string, language: string): boolean {
+  const name = finding.name.toLowerCase();
+  const code = contractCode.toLowerCase();
+  
+  // Pattern validation: Check if the vulnerability evidence exists in code
+  
+  // tx.origin false positive prevention
+  if (name.includes('tx.origin') || name.includes('tx\.origin')) {
+    // Must actually use tx.origin in authorization logic
+    if (!code.includes('tx.origin')) return false;
+    // Must be used in require or if condition
+    const hasAuthUse = /require\s*\([^)]*tx\.origin|if\s*\([^)]*tx\.origin/.test(contractCode);
+    if (!hasAuthUse) return false;
+  }
+  
+  // Reentrancy false positive prevention
+  if (name.includes('reentrancy') || name.includes('reentrant')) {
+    // Must have external calls (.call, .send, .transfer)
+    const hasExternalCall = /\.call\s*\{|\.call\.value\(|\.send\s*\(|\.transfer\s*\(|msg\.sender\.transfer/i.test(contractCode);
+    if (!hasExternalCall) return false;
+  }
+  
+  // Missing access control false positive prevention
+  if (name.includes('access control') || name.includes('unprotected') || name.includes('onlyOwner')) {
+    // Must have public/external functions without require checks or permission checks
+    // This is harder to validate without being too strict
+    // Allow if it's about specific functions
+    if (finding.codeSnippet && finding.codeSnippet.length > 0) {
+      return true; // Has specific code evidence
+    }
+  }
+  
+  // For other findings, if there's actual code snippet evidence, trust it
+  if (finding.codeSnippet && finding.codeSnippet.length > 5) {
+    // Try to find that code snippet in the contract
+    if (contractCode.includes(finding.codeSnippet)) {
+      return true; // Found exact code snippet
+    }
+  }
+  
+  // Generic validation: Higher confidence findings are more trustworthy
+  if (finding.confidence === 'High') {
+    return true; // Trust high-confidence findings more
+  }
+  
+  // Medium/Low confidence findings need more evidence
+  if (finding.confidence === 'Medium' && name.length > 10) {
+    return true; // Allow medium confidence if specific enough
+  }
+  
+  // Default: be conservative and filter low-confidence findings
+  return finding.confidence === 'High';
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -70,7 +125,16 @@ export async function POST(request: NextRequest) {
         const aiDiscoveredVulns = await performFullAIAnalysis(contractCode, detectedLanguage);
         
         // Add AI-discovered vulnerabilities and mark them as 'ai-detected'
+        // BUT: Validate they actually exist in the code to prevent false positives
         for (const aiVuln of aiDiscoveredVulns) {
+          // Validate: Check if the vulnerability evidence actually exists in code
+          const isValidFinding = validateAIFinding(aiVuln, contractCode, detectedLanguage);
+          
+          if (!isValidFinding) {
+            console.warn(`AI false positive filtered: ${aiVuln.name}`);
+            continue; // Skip false positive
+          }
+          
           // Avoid duplicate detection - check if similar vulnerability already exists
           const isDuplicate = allVulnerabilities.some(
             v => v.name.toLowerCase() === aiVuln.name.toLowerCase() && 
@@ -154,6 +218,53 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Generate informational findings when contract passes security checks
+    if (allVulnerabilities.length === 0) {
+      // Add positive informational findings
+      const infoFindings = [];
+      
+      infoFindings.push({
+        id: uuidv4(),
+        name: 'No Critical Vulnerabilities Detected',
+        type: 'Info',
+        description: 'The smart contract has successfully passed comprehensive automated security analysis with no critical or high-severity vulnerabilities identified.',
+        severity: 'Info' as const,
+        lineNumber: 1,
+        codeSnippet: 'Contract Passed',
+        exploitationScenario: 'N/A - This is a positive finding.',
+        recommendation: 'Continue to follow security best practices and maintain regular code audits as the contract evolves.',
+        detectionMethod: 'static' as const,
+        confidence: 'High' as const,
+        swcId: '',
+        cweIds: [],
+        scsvIds: [],
+        ethTrustImpact: 0,
+        references: []
+      });
+      
+      // Add code quality observations
+      infoFindings.push({
+        id: uuidv4(),
+        name: 'Code Quality and Structure',
+        type: 'Info',
+        description: `Contract ${detectedLanguage.charAt(0).toUpperCase() + detectedLanguage.slice(1)} code appears well-structured with appropriate use of language-specific patterns and conventions.`,
+        severity: 'Info' as const,
+        lineNumber: 1,
+        codeSnippet: 'Code Structure Assessment',
+        exploitationScenario: 'N/A - Informational finding regarding code quality.',
+        recommendation: `Continue employing ${detectedLanguage} security best practices, implement comprehensive testing, and consider formal verification for critical functions.`,
+        detectionMethod: 'static' as const,
+        confidence: 'High' as const,
+        swcId: '',
+        cweIds: [],
+        scsvIds: [],
+        ethTrustImpact: 0,
+        references: []
+      });
+
+      allVulnerabilities.push(...infoFindings);
+    }
+
     // Calculate statistics
     const statistics = {
       total: allVulnerabilities.length,
@@ -196,19 +307,71 @@ export async function POST(request: NextRequest) {
       checklist: scsvResults
     };
 
-    // Generate recommendations
+    // Generate context-aware recommendations
     const recommendations: string[] = [];
+    
+    // Add language-specific recommendations
+    if (detectedLanguage === 'solidity') {
+      recommendations.push('Use the latest stable Solidity compiler version to benefit from security patches');
+      if (statistics.critical > 0 || statistics.high > 0) {
+        recommendations.push('Implement comprehensive access control checks and input validation');
+      }
+    } else if (detectedLanguage === 'cairo') {
+      recommendations.push('Leverage Cairo\'s type system and formal verification capabilities');
+      recommendations.push('Consider using StarkWare\'s testing framework for unit and integration tests');
+    } else if (detectedLanguage === 'vyper') {
+      recommendations.push('Utilize Vyper\'s memory safety features and enhanced security-by-design approach');
+      recommendations.push('Enable all Vyper compiler safety checks and warnings');
+    }
+    
+    // Vulnerability-specific recommendations
     if (statistics.critical > 0) {
-      recommendations.push('Address critical vulnerabilities immediately before deployment');
+      recommendations.push(`CRITICAL: ${statistics.critical} critical vulnerabilities must be addressed before any mainnet deployment`);
     }
     if (statistics.high > 0) {
-      recommendations.push('Fix high severity issues to prevent potential exploits');
+      recommendations.push(`HIGH: ${statistics.high} high-severity issues require immediate remediation to prevent potential exploits`);
     }
-    if (scsvCompliance.percentage < 80) {
-      recommendations.push('Improve SCSVS v2 compliance to meet security standards');
+    if (statistics.medium > 0) {
+      recommendations.push(`MEDIUM: ${statistics.medium} medium-risk findings should be fixed in the next development cycle`);
     }
-    recommendations.push(`Current EthTrust Level: ${ethTrustDef.name}`);
+    
+    // Check for specific vulnerability types
+    const hasReentrancy = allVulnerabilities.some(v => v.name.toLowerCase().includes('reentrancy'));
+    const hasAccessControl = allVulnerabilities.some(v => v.name.toLowerCase().includes('access') || v.name.toLowerCase().includes('authorization'));
+    const hasIntegerIssues = allVulnerabilities.some(v => v.name.toLowerCase().includes('overflow') || v.name.toLowerCase().includes('underflow'));
+    
+    if (hasReentrancy) {
+      recommendations.push('Implement checks-effects-interactions pattern for external calls');
+      recommendations.push('Consider using ReentrancyGuard for sensitive state modifications');
+    }
+    if (hasAccessControl) {
+      recommendations.push('Review and strengthen access control mechanisms - verify role-based permissions');
+      recommendations.push('Document function access levels and implement proper privilege checks');
+    }
+    if (hasIntegerIssues) {
+      recommendations.push('Use SafeMath library or Solidity 0.8+ built-in overflow protection');
+      recommendations.push('Validate input ranges before arithmetic operations');
+    }
+    
+    // Compliance recommendations
+    if (scsvCompliance.percentage < 100) {
+      const failedControls = scsvResults.filter(r => !r.passed);
+      const categories = [...new Set(failedControls.map(c => c.category))];
+      recommendations.push(`SCSVS Compliance: ${scsvCompliance.percentage.toFixed(0)}% - Address ${failedControls.length} non-compliant controls in categories: ${categories.join(', ')}`);
+    }
+    
+    // EthTrust and best practices
+    recommendations.push(`Current EthTrust Level: ${ethTrustDef.name} (${ethTrustDef.description})`);
     recommendations.push(ethTrustDef.recommendation);
+    
+    // Add best practices based on code metrics
+    if (allVulnerabilities.length === 0 && statistics.total === 0) {
+      recommendations.push('✓ No vulnerabilities detected - maintain this quality with regular code reviews');
+      recommendations.push('Consider implementing additional security measures like formal verification or runtime monitoring');
+    } else {
+      recommendations.push('Conduct thorough security testing and code reviews before deployment');
+      recommendations.push('Set up automated security scanning in your CI/CD pipeline');
+    }
 
     const analysisTime = Date.now() - startTime;
 

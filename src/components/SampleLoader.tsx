@@ -56,10 +56,10 @@ export default function SampleLoader({ onLoad }: SampleLoaderProps) {
                   <div className="font-semibold text-sm text-gray-900">{sample.name}</div>
                   <div className="text-xs text-gray-600 mt-1">{sample.description}</div>
                 </div>
-                <span className={`text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ml-2 ${
-                  detected.language === 'solidity' ? 'bg-blue-200 text-blue-700' :
-                  detected.language === 'cairo' ? 'bg-yellow-200 text-yellow-700' :
-                  'bg-green-200 text-green-700'
+                <span className={`text-xs font-bold px-2 py-1 rounded-md whitespace-nowrap ml-2 border ${
+                  detected.language === 'solidity' ? 'border-gray-300 text-gray-700' :
+                  detected.language === 'cairo' ? 'border-gray-300 text-gray-700' :
+                  'border-gray-300 text-gray-700'
                 }`}>
                   {languageLabel}
                 </span>

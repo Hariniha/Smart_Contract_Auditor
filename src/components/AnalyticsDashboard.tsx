@@ -62,52 +62,52 @@ export default function AnalyticsDashboard({ result }: AnalyticsDashboardProps) 
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Key Metrics Grid */}
-      <div className="grid md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+        <div className="bg-white border border-gray-200 rounded-lg md:rounded-xl p-3 md:p-6 shadow-md hover:shadow-lg transition-all">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600 text-sm font-medium">Analysis Time</span>
-            <TrendingUp className="w-5 h-5 text-emerald-600" />
+            <span className="text-gray-600 text-xs md:text-sm font-medium">Analysis Time</span>
+            <TrendingUp className="w-4 md:w-5 h-4 md:h-5 text-emerald-600 flex-shrink-0" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">{(result.analysisTime / 1000).toFixed(2)}s</div>
+          <div className="text-lg md:text-2xl font-bold text-gray-900">{(result.analysisTime / 1000).toFixed(2)}s</div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
+        <div className="bg-white border border-gray-200 rounded-lg md:rounded-xl p-3 md:p-6 shadow-md hover:shadow-lg transition-all">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600 text-sm font-medium">Unique Patterns</span>
-            <Target className="w-5 h-5 text-teal-600" />
+            <span className="text-gray-600 text-xs md:text-sm font-medium">Unique Patterns</span>
+            <Target className="w-4 md:w-5 h-4 md:h-5 text-teal-600 flex-shrink-0" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">{vulnTypeData.length}</div>
+          <div className="text-lg md:text-2xl font-bold text-gray-900">{vulnTypeData.length}</div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
+        <div className="bg-white border border-gray-200 rounded-lg md:rounded-xl p-3 md:p-6 shadow-md hover:shadow-lg transition-all">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600 text-sm font-medium">Security Score</span>
-            <Shield className="w-5 h-5 text-emerald-600" />
+            <span className="text-gray-600 text-xs md:text-sm font-medium">Security Score</span>
+            <Shield className="w-4 md:w-5 h-4 md:h-5 text-emerald-600 flex-shrink-0" />
           </div>
-          <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">{result.securityScore}/100</div>
+          <div className="text-lg md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">{result.securityScore}/100</div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
+        <div className="bg-white border border-gray-200 rounded-lg md:rounded-xl p-3 md:p-6 shadow-md hover:shadow-lg transition-all">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600 text-sm font-medium">Risk Level</span>
-            <AlertTriangle className="w-5 h-5 text-orange-600" />
+            <span className="text-gray-600 text-xs md:text-sm font-medium">Risk Level</span>
+            <AlertTriangle className="w-4 md:w-5 h-4 md:h-5 text-orange-600 flex-shrink-0" />
           </div>
-          <div className="text-2xl font-bold text-orange-600">{result.riskLevel}</div>
+          <div className="text-lg md:text-2xl font-bold text-orange-600">{result.riskLevel}</div>
         </div>
       </div>
 
       {/* Charts Grid */}
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Severity Distribution Bar Chart */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
-          <h3 className="text-lg font-bold mb-4 text-gray-900">Severity Distribution</h3>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="bg-white border border-gray-200 rounded-lg md:rounded-xl p-4 md:p-6 shadow-md">
+          <h3 className="text-base md:text-lg font-bold mb-4 text-gray-900">Severity Distribution</h3>
+          <ResponsiveContainer width="100%" height={250}>
             <BarChart data={severityBarData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis dataKey="severity" stroke="#6B7280" />
-              <YAxis stroke="#6B7280" />
+              <XAxis dataKey="severity" stroke="#6B7280" fontSize={12} />
+              <YAxis stroke="#6B7280" fontSize={12} />
               <Tooltip 
                 contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px' }}
               />
@@ -121,10 +121,10 @@ export default function AnalyticsDashboard({ result }: AnalyticsDashboardProps) 
         </div>
 
         {/* Detection Method Pie Chart */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
-          <h3 className="text-lg font-bold mb-4 text-gray-900">Detection Methods</h3>
+        <div className="bg-white border border-gray-200 rounded-lg md:rounded-xl p-4 md:p-6 shadow-md">
+          <h3 className="text-base md:text-lg font-bold mb-4 text-gray-900">Detection Methods</h3>
           {detectionMethodData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={detectionMethodData}
@@ -132,7 +132,7 @@ export default function AnalyticsDashboard({ result }: AnalyticsDashboardProps) 
                   cy="50%"
                   labelLine={false}
                   label={({ name, value }) => `${name}: ${value}`}
-                  outerRadius={100}
+                  outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -141,11 +141,11 @@ export default function AnalyticsDashboard({ result }: AnalyticsDashboardProps) 
                   ))}
                 </Pie>
                 <Tooltip />
-                <Legend />
+                <Legend fontSize={12} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-64 flex items-center justify-center text-gray-400">
+            <div className="h-48 md:h-64 flex items-center justify-center text-gray-400">
               No data available
             </div>
           )}
@@ -154,13 +154,13 @@ export default function AnalyticsDashboard({ result }: AnalyticsDashboardProps) 
 
       {/* Top Vulnerability Types */}
       <div className="card">
-        <h3 className="text-lg font-bold mb-4">Top Vulnerability Patterns</h3>
+        <h3 className="text-base md:text-lg font-bold mb-4">Top Vulnerability Patterns</h3>
         {sortedVulnTypes.length > 0 ? (
-          <ResponsiveContainer width="100%" height={400}>
+          <ResponsiveContainer width="100%" height={300}>
             <BarChart data={sortedVulnTypes} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis type="number" stroke="#9CA3AF" />
-              <YAxis dataKey="name" type="category" stroke="#9CA3AF" width={100} />
+              <XAxis type="number" stroke="#9CA3AF" fontSize={12} />
+              <YAxis dataKey="name" type="category" stroke="#9CA3AF" fontSize={12} width={80} />
               <Tooltip 
                 contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
               />
@@ -168,7 +168,7 @@ export default function AnalyticsDashboard({ result }: AnalyticsDashboardProps) 
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <div className="py-12 text-center text-gray-400">
+          <div className="py-8 md:py-12 text-center text-gray-400">
             No vulnerabilities to analyze
           </div>
         )}
@@ -176,11 +176,11 @@ export default function AnalyticsDashboard({ result }: AnalyticsDashboardProps) 
 
       {/* Risk Assessment Matrix */}
       <div className="card">
-        <h3 className="text-lg font-bold mb-4 text-gray-900">Risk Assessment Matrix</h3>
-        <div className="grid md:grid-cols-2 gap-6">
+        <h3 className="text-base md:text-lg font-bold mb-4 text-gray-900">Risk Assessment Matrix</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <div>
-            <h4 className="text-sm font-semibold mb-3 text-gray-600">Vulnerability Impact</h4>
-            <div className="space-y-3">
+            <h4 className="text-xs md:text-sm font-semibold mb-3 text-gray-600">Vulnerability Impact</h4>
+            <div className="space-y-2 md:space-y-3">
               {[
                 { label: 'Fund Loss Risk', value: result.statistics.critical > 0 ? 'High' : 'Low', color: result.statistics.critical > 0 ? 'text-red-600' : 'text-green-600' },
                 { label: 'Access Control', value: result.vulnerabilities.some(v => v.type.includes('Access') || v.type.includes('Authorization')) ? 'Issues Found' : 'Secure', color: result.vulnerabilities.some(v => v.type.includes('Access')) ? 'text-orange-600' : 'text-green-600' },

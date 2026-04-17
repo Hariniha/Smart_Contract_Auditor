@@ -213,16 +213,16 @@ export default function AnalyzerPage() {
       {/* Navigation */}
       <nav className='border-b border-gray-200 bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm'>
         <div className='container mx-auto px-4'>
-          <div className='flex items-center justify-between h-16'>
-            <Link href='/' className='flex items-center space-x-2'>
-              <ArrowLeft className='w-5 h-5 text-gray-600 hover:text-emerald-600' />
-              <Shield className='w-8 h-8 text-emerald-500' />
-              <span className='text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500'>
+          <div className='flex items-center justify-between h-14 md:h-16'>
+            <Link href='/' className='flex items-center space-x-1 md:space-x-2'>
+              <ArrowLeft className='w-4 md:w-5 h-4 md:h-5 text-gray-600 hover:text-emerald-600' />
+              <Shield className='w-6 md:w-8 h-6 md:h-8 text-emerald-500' />
+              <span className='text-base md:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500'>
                 SmartAudit
               </span>
             </Link>
-            <div className='flex items-center space-x-4'>
-              <span className='text-sm text-gray-600 font-medium'>
+            <div className='flex items-center space-x-2 md:space-x-4'>
+              <span className='text-xs md:text-sm text-gray-600 font-medium truncate max-w-[100px] md:max-w-none'>
                 {fileName || 'No file name'}
               </span>
             </div>
@@ -230,34 +230,34 @@ export default function AnalyzerPage() {
         </div>
       </nav>
 
-      <div className='container mx-auto px-4 py-8'>
+      <div className='container mx-auto px-3 md:px-4 py-4 md:py-8'>
         {!analysisResult ? (
-          <div className='grid lg:grid-cols-3 gap-6'>
+          <div className='grid md:grid-cols-3 gap-4 md:gap-6'>
             {/* Code Input Section */}
-            <div className='lg:col-span-2 space-y-6'>
+            <div className='md:col-span-2 space-y-4 md:space-y-6'>
               <div className='card'>
-                <div className='flex items-center justify-between mb-4'>
-                  <h2 className='text-2xl font-bold flex items-center text-gray-900'>
-                    <FileCode className='w-6 h-6 mr-2 text-emerald-600' />
+                <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0 mb-4'>
+                  <h2 className='text-lg md:text-2xl font-bold flex items-center text-gray-900'>
+                    <FileCode className='w-5 md:w-6 h-5 md:h-6 mr-2 text-emerald-600' />
                     Smart Contract Analysis
                   </h2>
-                  <div className='flex items-center gap-2'>
-                    <span className='text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700'>
+                  <div className='flex items-center gap-2 md:gap-3 flex-wrap'>
+                    <span className='text-xs font-semibold px-3 py-1.5 rounded-md border border-gray-300 text-gray-700'>
                       Solidity
                     </span>
-                    <span className='text-xs font-semibold px-2 py-1 rounded-full bg-yellow-100 text-yellow-700'>
+                    <span className='text-xs font-semibold px-3 py-1.5 rounded-md border border-gray-300 text-gray-700'>
                       Cairo
                     </span>
-                    <span className='text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700'>
+                    <span className='text-xs font-semibold px-3 py-1.5 rounded-md border border-gray-300 text-gray-700'>
                       Vyper
                     </span>
                   </div>
                 </div>
 
                 {/* File Name Input */}
-                <div className='mb-4'>
-                  <label className='block text-sm font-semibold text-gray-700 mb-2'>
-                    <FileCode className='w-4 h-4 inline mr-2' />
+                <div className='mb-3 md:mb-4'>
+                  <label className='block text-xs md:text-sm font-semibold text-gray-700 mb-2'>
+                    <FileCode className='w-3 md:w-4 h-3 md:h-4 inline mr-2' />
                     Contract Name (.sol / .vy / .cairo)
                   </label>
                   <input
@@ -268,58 +268,58 @@ export default function AnalyzerPage() {
                       if (error) setError(null);
                     }}
                     placeholder='contract.sol / contract.vy / contract.cairo'
-                    className='w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-emerald-500 text-gray-900'
+                    className='w-full px-3 md:px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-emerald-500 text-gray-900 text-sm'
                   />
                   {fileName.trim() && !isValidContractFileName(fileName) && (
-                    <p className='mt-2 text-sm text-red-600'>
+                    <p className='mt-2 text-xs md:text-sm text-red-600'>
                       Use a valid file name ending with .sol, .vy, or .cairo
                     </p>
                   )}
                 </div>
 
                 {/* GitHub Repo Input */}
-                <div className='mb-4'>
-                  <label className='block text-sm font-semibold text-gray-700 mb-2'>
-                    <Github className='w-4 h-4 inline mr-2' />
+                <div className='mb-3 md:mb-4'>
+                  <label className='block text-xs md:text-sm font-semibold text-gray-700 mb-2'>
+                    <Github className='w-3 md:w-4 h-3 md:h-4 inline mr-2' />
                     GitHub Repository Link
                   </label>
-                  <div className='flex gap-2'>
+                  <div className='flex gap-2 flex-col md:flex-row'>
                     <input
                       type='text'
                       value={githubRepoLink}
                       onChange={(e) => setGithubRepoLink(e.target.value)}
                       placeholder='https://github.com/username/repo'
-                      className='flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-emerald-500 text-gray-900'
+                      className='flex-1 px-3 md:px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-emerald-500 text-gray-900 text-sm'
                     />
                     <button
                       onClick={handleGithubRepoAnalyze}
                       disabled={isAnalyzing || !githubRepoLink.trim()}
-                      className='px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed'>
+                      className='px-4 md:px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap'>
                       Analyze
                     </button>
                   </div>
                 </div>
 
                 {/* Tabs */}
-                <div className='flex gap-2 mb-4 border-b border-gray-200'>
+                <div className='flex gap-1 md:gap-2 mb-4 border-b border-gray-200 overflow-x-auto'>
                   <button
                     onClick={() => setActiveTab('paste')}
-                    className={`flex items-center px-6 py-3 font-semibold transition-all border-b-2 ${
+                    className={`flex items-center px-3 md:px-6 py-2 md:py-3 font-semibold transition-all border-b-2 text-xs md:text-base whitespace-nowrap ${
                       activeTab === 'paste'
                         ? 'border-blue-500 text-blue-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700'
                     }`}>
-                    <Code2 className='w-4 h-4 mr-2' />
+                    <Code2 className='w-3 md:w-4 h-3 md:h-4 mr-1 md:mr-2' />
                     Paste Code
                   </button>
                   <button
                     onClick={() => setActiveTab('upload')}
-                    className={`flex items-center px-6 py-3 font-semibold transition-all border-b-2 ${
+                    className={`flex items-center px-3 md:px-6 py-2 md:py-3 font-semibold transition-all border-b-2 text-xs md:text-base whitespace-nowrap ${
                       activeTab === 'upload'
                         ? 'border-blue-500 text-blue-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700'
                     }`}>
-                    <Upload className='w-4 h-4 mr-2' />
+                    <Upload className='w-3 md:w-4 h-3 md:h-4 mr-1 md:mr-2' />
                     Upload File
                   </button>
                 </div>
@@ -343,9 +343,9 @@ contract UserAuth {
         isRegistered[msg.sender] = true;
     }
 }`}
-                      className='w-full h-96 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-emerald-500 font-mono text-sm text-gray-700 resize-none leading-relaxed'
+                      className='w-full h-64 md:h-96 px-3 md:px-4 py-2 md:py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-emerald-500 font-mono text-xs md:text-sm text-gray-700 resize-none leading-relaxed'
                     />
-                    <div className='mt-2 text-sm text-blue-600'>
+                    <div className='mt-2 text-xs md:text-sm text-blue-600'>
                       {contractCode.split('\n').length} lines •{' '}
                       {contractCode.length} characters
                     </div>
@@ -354,13 +354,13 @@ contract UserAuth {
 
                 {/* Upload File Tab */}
                 {activeTab === 'upload' && (
-                  <div className='border-2 border-dashed border-gray-300 rounded-lg p-12 text-center'>
-                    <Upload className='w-12 h-12 mx-auto mb-4 text-gray-400' />
+                  <div className='border-2 border-dashed border-gray-300 rounded-lg p-6 md:p-12 text-center'>
+                    <Upload className='w-8 md:w-12 h-8 md:h-12 mx-auto mb-3 md:mb-4 text-gray-400' />
                     <label className='cursor-pointer'>
-                      <span className='text-blue-600 hover:text-blue-700 font-semibold'>
+                      <span className='text-blue-600 hover:text-blue-700 font-semibold text-sm md:text-base'>
                         Click to upload
                       </span>
-                      <span className='text-gray-500'> or drag and drop</span>
+                      <span className='text-gray-500 text-sm md:text-base'> or drag and drop</span>
                       <input
                         type='file'
                         accept='.sol,.vy,.cairo'
@@ -374,7 +374,7 @@ contract UserAuth {
 
                     {contractCode.trim() && (
                       <div className='mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-left'>
-                        <p className='text-sm text-emerald-700 font-semibold'>
+                        <p className='text-xs md:text-sm text-emerald-700 font-semibold'>
                           File loaded successfully
                         </p>
                         <p className='text-xs text-gray-700 mt-1'>
@@ -396,7 +396,7 @@ contract UserAuth {
                 )}
 
                 {error && (
-                  <div className='mt-4 p-4 bg-red-50 border border-red-300 rounded-lg text-red-700'>
+                  <div className='mt-4 p-3 md:p-4 bg-red-50 border border-red-300 rounded-lg text-red-700 text-sm'>
                     {error}
                   </div>
                 )}
@@ -404,15 +404,15 @@ contract UserAuth {
                 <button
                   onClick={handleAnalyze}
                   disabled={isAnalyzing || !contractCode.trim()}
-                  className='btn-primary w-full mt-4 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed'>
+                  className='btn-primary w-full mt-4 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base py-2 md:py-3'>
                   {isAnalyzing ? (
                     <>
-                      <div className='w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2' />
+                      <div className='w-4 md:w-5 h-4 md:h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2' />
                       Analyzing...
                     </>
                   ) : (
                     <>
-                      <Play className='w-5 h-5 mr-2' />
+                      <Play className='w-4 md:w-5 h-4 md:h-5 mr-2' />
                       Analyze Contract
                     </>
                   )}
@@ -423,14 +423,14 @@ contract UserAuth {
             </div>
 
             {/* Sidebar */}
-            <div className='space-y-6'>
+            <div className='space-y-4 md:space-y-6'>
               <SampleLoader onLoad={handleLoadSample} />
 
               <div className='card'>
-                <h3 className='text-lg font-bold mb-4 text-gray-900'>
+                <h3 className='text-base md:text-lg font-bold mb-3 md:mb-4 text-gray-900'>
                   Analysis Features
                 </h3>
-                <ul className='space-y-3 text-sm text-gray-600'>
+                <ul className='space-y-2 md:space-y-3 text-xs md:text-sm text-gray-600'>
                   <li className='flex items-start'>
                     <div className='w-2 h-2 bg-blue-500 rounded-full mt-1.5 mr-2 flex-shrink-0' />
                     <span>
@@ -457,10 +457,10 @@ contract UserAuth {
               </div>
 
               <div className='card bg-blue-50/50 border-blue-200'>
-                <h3 className='text-lg font-bold mb-2 text-gray-900'>
+                <h3 className='text-base md:text-lg font-bold mb-2 text-gray-900'>
                   Security Standards
                 </h3>
-                <p className='text-sm text-gray-600 mb-3'>
+                <p className='text-xs md:text-sm text-gray-600 mb-3'>
                   Analysis based on industry-recognized frameworks
                 </p>
                 <div className='space-y-2 text-xs'>
@@ -490,7 +490,7 @@ contract UserAuth {
           <div>
             <button
               onClick={() => setAnalysisResult(null)}
-              className='mb-6 btn-secondary flex items-center'>
+              className='mb-6 btn-secondary flex items-center text-sm md:text-base'>
               <ArrowLeft className='w-4 h-4 mr-2' />
               New Analysis
             </button>

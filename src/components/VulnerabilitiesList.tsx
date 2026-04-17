@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Vulnerability } from '@/types';
-import { ChevronDown, ChevronUp, ExternalLink, Code, AlertTriangle, Zap, BarChart3 } from 'lucide-react';
+import { ChevronDown, ChevronUp, ExternalLink, Code, AlertTriangle, Zap, BarChart3, Bot, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface VulnerabilitiesListProps {
@@ -36,14 +36,14 @@ export default function VulnerabilitiesList({ vulnerabilities, language }: Vulne
   const getDetectionBadge = (method: string) => {
     switch(method) {
       case 'ai-detected':
-        return { bg: 'bg-purple-100', text: 'text-purple-700', label: '🤖 AI-Detected', icon: Zap };
+        return { bg: 'bg-purple-100', text: 'text-purple-700', label: 'AI-Detected', icon: Bot };
       case 'ai-optimized':
-        return { bg: 'bg-indigo-100', text: 'text-indigo-700', label: '✨ AI-Optimized', icon: Zap };
+        return { bg: 'bg-indigo-100', text: 'text-indigo-700', label: 'AI-Optimized', icon: Sparkles };
       case 'hybrid':
-        return { bg: 'bg-cyan-100', text: 'text-cyan-700', label: '⚡ Static + AI', icon: BarChart3 };
+        return { bg: 'bg-cyan-100', text: 'text-cyan-700', label: 'Static + AI', icon: Zap };
       case 'static':
       default:
-        return { bg: 'bg-blue-100', text: 'text-blue-700', label: '📊 Static', icon: BarChart3 };
+        return { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Static', icon: BarChart3 };
     }
   };
 
@@ -58,29 +58,29 @@ export default function VulnerabilitiesList({ vulnerabilities, language }: Vulne
 
   if (vulnerabilities.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-50 rounded-full mb-4 border-2 border-green-200">
-          <AlertTriangle className="w-8 h-8 text-green-500" />
+      <div className="text-center py-8 md:py-12">
+        <div className="inline-flex items-center justify-center w-12 md:w-16 h-12 md:h-16 bg-green-50 rounded-full mb-3 md:mb-4 border-2 border-green-200">
+          <AlertTriangle className="w-6 md:w-8 h-6 md:h-8 text-green-500" />
         </div>
-        <h3 className="text-xl font-bold mb-2 text-gray-900">No Vulnerabilities Detected</h3>
-        <p className="text-gray-600">Your smart contract passed all security checks!</p>
+        <h3 className="text-lg md:text-xl font-bold mb-2 text-gray-900">No Vulnerabilities Detected</h3>
+        <p className="text-sm md:text-base text-gray-600">Your smart contract passed all security checks!</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* AI Analysis Summary */}
       {totalAIFindings > 0 && (
-        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-4">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Zap className="w-5 h-5 text-purple-600" />
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-3 md:p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+              <div className="p-1.5 md:p-2 bg-purple-100 rounded-lg flex-shrink-0">
+                <Zap className="w-4 md:w-5 h-4 md:h-5 text-purple-600" />
               </div>
-              <div>
-                <h3 className="font-semibold text-purple-900">AI Analysis Report</h3>
-                <p className="text-sm text-purple-700">
+              <div className="min-w-0">
+                <h3 className="font-semibold text-purple-900 text-sm md:text-base">AI Analysis Report</h3>
+                <p className="text-xs md:text-sm text-purple-700">
                   {aiDetectedCount > 0 && `${aiDetectedCount} new vulnerabilities discovered by AI`}
                   {aiDetectedCount > 0 && aiOptimizedCount > 0 && ' + '}
                   {aiOptimizedCount > 0 && `${aiOptimizedCount} findings enhanced with AI insights`}
@@ -92,15 +92,15 @@ export default function VulnerabilitiesList({ vulnerabilities, language }: Vulne
       )}
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center space-x-2 flex-wrap">
-          <span className="text-sm text-gray-600 font-medium">Filter by severity:</span>
+      <div className="flex flex-col gap-3 md:gap-4">
+        <div className="flex items-center space-x-2 flex-wrap gap-2">
+          <span className="text-xs md:text-sm text-gray-600 font-medium whitespace-nowrap">Filter by severity:</span>
           {['all', 'critical', 'high', 'medium', 'low'].map((filter) => (
             <button
               key={filter}
               onClick={() => setSeverityFilter(filter)}
               className={cn(
-                'px-3 py-1 rounded-full text-xs font-medium transition-colors',
+                'px-2 md:px-3 py-1 rounded-full text-xs font-medium transition-colors',
                 severityFilter === filter
                   ? 'bg-emerald-600 text-white'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -110,13 +110,13 @@ export default function VulnerabilitiesList({ vulnerabilities, language }: Vulne
             </button>
           ))}
         </div>
-        <div className="text-sm text-gray-600">
+        <div className="text-xs md:text-sm text-gray-600">
           Showing <span className="font-bold text-gray-900">{filteredVulns.length}</span> of <span className="font-bold text-gray-900">{vulnerabilities.length}</span>
         </div>
       </div>
 
       {/* Vulnerabilities List */}
-      <div className="space-y-4">
+      <div className="space-y-3 md:space-y-4">
         {sortedVulns.map((vuln) => {
           const detectionBadge = getDetectionBadge(vuln.detectionMethod);
           const BadgeIcon = detectionBadge.icon;
@@ -126,7 +126,7 @@ export default function VulnerabilitiesList({ vulnerabilities, language }: Vulne
             <div
               key={vuln.id}
               className={cn(
-                'bg-white border-2 rounded-lg p-4 hover:shadow-md transition-all duration-200 cursor-pointer',
+                'bg-white border-2 rounded-lg p-3 md:p-4 hover:shadow-md transition-all duration-200 cursor-pointer',
                 isAIFinding 
                   ? 'border-purple-300 bg-gradient-to-r from-white to-purple-50' 
                   : 'border-gray-200 hover:border-emerald-500'
@@ -140,10 +140,10 @@ export default function VulnerabilitiesList({ vulnerabilities, language }: Vulne
                 className="cursor-pointer"
                 onClick={() => setExpandedId(expandedId === vuln.id ? null : vuln.id)}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2 flex-wrap gap-2">
-                      <span className={cn('badge', `severity-${vuln.severity.toLowerCase()}`)}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-1 md:space-x-2 mb-2 flex-wrap gap-1 md:gap-2">
+                      <span className={cn('badge text-xs md:text-sm px-2 md:px-3 py-0.5 md:py-1', `severity-${vuln.severity.toLowerCase()}`)}>
                         {vuln.severity}
                       </span>
                       
@@ -206,8 +206,9 @@ export default function VulnerabilitiesList({ vulnerabilities, language }: Vulne
                     {/* AI Analysis Note */}
                     {isAIFinding && (
                       <div className="bg-purple-50 border border-purple-200 p-3 rounded-lg">
-                        <p className="text-sm text-purple-700">
-                          <strong>🤖 AI Analysis:</strong> This vulnerability was identified and analyzed using advanced AI pattern recognition.
+                        <p className="text-sm text-purple-700 flex items-center gap-2">
+                          <Bot className="w-4 h-4 flex-shrink-0" />
+                          <span><strong>AI Analysis:</strong> This vulnerability was identified and analyzed using advanced AI pattern recognition.</span>
                         </p>
                       </div>
                     )}
@@ -217,7 +218,7 @@ export default function VulnerabilitiesList({ vulnerabilities, language }: Vulne
                       <div>
                         <span className="text-gray-600">Detection Method:</span>{' '}
                         <span className={cn('font-medium', detectionBadge.text)}>
-                          {detectionBadge.label.replace(/[🤖✨⚡📊]/g, '').trim()}
+                          {detectionBadge.label}
                         </span>
                       </div>
                       <div>

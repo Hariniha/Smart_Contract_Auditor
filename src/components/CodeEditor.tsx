@@ -25,28 +25,31 @@ export default function CodeEditor({
   value, 
   onChange, 
   language = 'sol',
-  height = '500px' 
+  height = '400px' 
 }: CodeEditorProps) {
   const monacoLang = getMonacoLanguage(language);
   
+  // Responsive height based on viewport
+  const responsiveHeight = height === '500px' ? 'min(500px, 60vh)' : height;
+
   return (
-    <div className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white">
+    <div className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white w-full">
       <Editor
-        height={height}
+        height={responsiveHeight}
         language={monacoLang}
         value={value}
         onChange={(value) => onChange(value || '')}
         theme="vs-dark"
         options={{
           minimap: { enabled: false },
-          fontSize: 14,
+          fontSize: 12,
           lineNumbers: 'on',
           roundedSelection: false,
           scrollBeyondLastLine: false,
           automaticLayout: true,
           tabSize: 2,
           wordWrap: 'on',
-          padding: { top: 16, bottom: 16 }
+          padding: { top: 12, bottom: 12 }
         }}
       />
     </div>

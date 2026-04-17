@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -14,6 +14,8 @@ import {
   DollarSign,
   Lock,
   AlertTriangle,
+  Menu,
+  X,
 } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -23,6 +25,7 @@ if (typeof window !== 'undefined') {
 }
 
 export default function HomePage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const circuitLinesRef = useRef<SVGSVGElement>(null);
 
@@ -51,62 +54,104 @@ export default function HomePage() {
         <div className='container mx-auto px-4'>
           <div className='flex items-center justify-between h-16'>
             <div className='flex items-center space-x-2'>
-              <Shield className='w-8 h-8 text-emerald-500' />
-              <span className='text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400'>
+              <Shield className='w-6 md:w-8 h-6 md:h-8 text-emerald-500' />
+              <span className='text-lg md:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400'>
                 SmartAudit
               </span>
             </div>
-            <div className='flex items-center space-x-6'>
+
+            {/* Desktop Navigation */}
+            <div className='hidden md:flex items-center space-x-6'>
               <Link
                 href='#features'
-                className='text-gray-300 hover:text-emerald-400 transition-colors font-medium'>
+                className='text-gray-300 hover:text-emerald-400 transition-colors font-medium text-sm lg:text-base'>
                 Features
               </Link>
               <Link
                 href='#how-to-use'
-                className='text-gray-300 hover:text-emerald-400 transition-colors font-medium'>
+                className='text-gray-300 hover:text-emerald-400 transition-colors font-medium text-sm lg:text-base'>
                 How to Use
               </Link>
               <Link
                 href='/analyzer'
-                className='px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg transition-all duration-300 shadow-md'>
+                className='px-4 lg:px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg transition-all duration-300 shadow-md text-sm lg:text-base'>
                 Get Started
               </Link>
             </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className='md:hidden p-2 hover:bg-gray-800 rounded-lg transition-colors'>
+              {mobileMenuOpen ? (
+                <X className='w-6 h-6 text-emerald-400' />
+              ) : (
+                <Menu className='w-6 h-6 text-gray-300' />
+              )}
+            </button>
           </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className='md:hidden pb-4 border-t border-gray-800'>
+              <div className='flex flex-col space-y-3 pt-4'>
+                <Link
+                  href='#features'
+                  onClick={() => setMobileMenuOpen(false)}
+                  className='text-gray-300 hover:text-emerald-400 transition-colors font-medium px-4 py-2'>
+                  Features
+                </Link>
+                <Link
+                  href='#how-to-use'
+                  onClick={() => setMobileMenuOpen(false)}
+                  className='text-gray-300 hover:text-emerald-400 transition-colors font-medium px-4 py-2'>
+                  How to Use
+                </Link>
+                <Link
+                  href='/analyzer'
+                  onClick={() => setMobileMenuOpen(false)}
+                  className='px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg transition-all duration-300 shadow-md text-center'>
+                  Get Started
+                </Link>
+              </div>
+            </motion.div>
+          )}
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className='container mx-auto px-4 py-12'>
-        <div className='grid lg:grid-cols-2 gap-12 items-center'>
+      <section className='container mx-auto px-4 py-8 md:py-12'>
+        <div className='grid lg:grid-cols-2 gap-8 md:gap-12 items-center'>
           {/* Left Content */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}>
             {/* Badge */}
-            <div className='inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 mb-6'>
-              <Shield className='w-4 h-4 text-emerald-400' />
-              <span className='text-sm text-emerald-300 font-medium'>
+            <div className='inline-flex items-center space-x-2 px-3 md:px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 mb-6'>
+              <Shield className='w-3 md:w-4 h-3 md:h-4 text-emerald-400 flex-shrink-0' />
+              <span className='text-xs md:text-sm text-emerald-300 font-medium'>
                 AI-Powered Security Analysis • Multi-Language Support
               </span>
             </div>
 
             {/* Main Heading */}
-            <h1 className='text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight text-white'>
+            <h1 className='text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 md:mb-6 leading-tight text-white'>
               Secure Your{' '}
               <span className='text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400'>
                 Smart Contracts
               </span>
               <br />
-              <span className='text-xl md:text-2xl font-semibold text-gray-300'>
+              <span className='text-base md:text-lg lg:text-2xl font-semibold text-gray-300'>
                 Solidity • Cairo • Vyper
               </span>
             </h1>
 
             {/* Description */}
-            <p className='text-sm md:text-base text-gray-300 mb-8 leading-relaxed text-justify'>
+            <p className='text-xs md:text-sm lg:text-base text-gray-300 mb-6 md:mb-8 leading-relaxed text-justify'>
               Comprehensive security analysis for <strong>Solidity (EVM)</strong>, <strong>Cairo (StarkNet)</strong>,
               and <strong>Vyper (Python-based)</strong> smart contracts. Combining
               <strong> static pattern detection</strong> with{' '}
@@ -115,57 +160,57 @@ export default function HomePage() {
             </p>
 
             {/* Language Support Badges */}
-            <div className='flex flex-wrap gap-3 mb-8'>
-              <div className='px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/50'>
-                <span className='text-sm text-blue-200 font-semibold'>
+            <div className='flex flex-wrap gap-2 md:gap-3 mb-6 md:mb-8'>
+              <div className='px-3 md:px-4 py-1.5 md:py-2 rounded-lg bg-white/5 border border-gray-400/30'>
+                <span className='text-xs md:text-sm text-gray-300 font-semibold'>
                   Solidity (EVM)
                 </span>
               </div>
-              <div className='px-4 py-2 rounded-lg bg-yellow-500/20 border border-yellow-500/50'>
-                <span className='text-sm text-yellow-200 font-semibold'>
+              <div className='px-3 md:px-4 py-1.5 md:py-2 rounded-lg bg-white/5 border border-gray-400/30'>
+                <span className='text-xs md:text-sm text-gray-300 font-semibold'>
                   Cairo (StarkNet)
                 </span>
               </div>
-              <div className='px-4 py-2 rounded-lg bg-green-500/20 border border-green-500/50'>
-                <span className='text-sm text-green-200 font-semibold'>
+              <div className='px-3 md:px-4 py-1.5 md:py-2 rounded-lg bg-white/5 border border-gray-400/30'>
+                <span className='text-xs md:text-sm text-gray-300 font-semibold'>
                   Vyper (Python)
                 </span>
               </div>
             </div>
 
             {/* Feature Pills */}
-            <div className='flex flex-wrap gap-3 mb-10'>
-              <div className='flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 border border-gray-700'>
-                <CheckCircle2 className='w-4 h-4 text-blue-400' />
-                <span className='text-sm text-gray-300 font-medium'>
+            <div className='flex flex-wrap gap-2 md:gap-3 mb-8 md:mb-10'>
+              <div className='flex items-center space-x-1 md:space-x-2 px-3 md:px-4 py-1.5 md:py-2 rounded-lg bg-gray-800/50 border border-gray-700'>
+                <CheckCircle2 className='w-3 md:w-4 h-3 md:h-4 text-blue-400 flex-shrink-0' />
+                <span className='text-xs md:text-sm text-gray-300 font-medium'>
                   Static Analysis
                 </span>
               </div>
-              <div className='flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 border border-gray-700'>
-                <CheckCircle2 className='w-4 h-4 text-purple-400' />
-                <span className='text-sm text-gray-300 font-medium'>
+              <div className='flex items-center space-x-1 md:space-x-2 px-3 md:px-4 py-1.5 md:py-2 rounded-lg bg-gray-800/50 border border-gray-700'>
+                <CheckCircle2 className='w-3 md:w-4 h-3 md:h-4 text-purple-400 flex-shrink-0' />
+                <span className='text-xs md:text-sm text-gray-300 font-medium'>
                   AI-Powered Dynamic Analysis
                 </span>
               </div>
-              <div className='flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 border border-gray-700'>
-                <CheckCircle2 className='w-4 h-4 text-emerald-400' />
-                <span className='text-sm text-gray-300 font-medium'>
+              <div className='flex items-center space-x-1 md:space-x-2 px-3 md:px-4 py-1.5 md:py-2 rounded-lg bg-gray-800/50 border border-gray-700'>
+                <CheckCircle2 className='w-3 md:w-4 h-3 md:h-4 text-emerald-400 flex-shrink-0' />
+                <span className='text-xs md:text-sm text-gray-300 font-medium'>
                   Comprehensive Reports
                 </span>
               </div>
             </div>
 
             {/* CTA Buttons */}
-            <div className='flex flex-col sm:flex-row gap-4'>
+            <div className='flex flex-col sm:flex-row gap-3 md:gap-4'>
               <Link
                 href='/analyzer'
-                className='px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 text-center'>
+                className='px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 text-center text-sm md:text-base'>
                 Try it Now - It&apos;s Free
               </Link>
             </div>
 
             {/* Stats */}
-            <div className='grid grid-cols-3 gap-8 mt-16'></div>
+            <div className='grid grid-cols-3 gap-6 md:gap-8 mt-12 md:mt-16'></div>
           </motion.div>
 
           {/* Right Visual */}
@@ -362,24 +407,24 @@ export default function HomePage() {
                 icon: '≡',
                 description: 'The most popular language for Ethereum smart contracts',
                 features: ['EVM Compatibility', 'SWC Registry', 'Reentrancy Detection', 'Gas Optimization'],
-                color: 'bg-blue-500/20 hover:bg-blue-500/30 border-blue-500/50',
-                textColor: 'text-blue-300'
+                color: 'bg-white/5 hover:bg-white/10 border-gray-400/30',
+                textColor: 'text-white'
               },
               {
                 name: 'Cairo',
                 icon: '◊',
                 description: 'Starknet\'s proving language for scalable apps',
                 features: ['Cairo Analysis', 'CSR Registry', 'Proof Validation', 'Performance Optimization'],
-                color: 'bg-yellow-500/20 hover:bg-yellow-500/30 border-yellow-500/50',
-                textColor: 'text-yellow-300'
+                color: 'bg-white/5 hover:bg-white/10 border-gray-400/30',
+                textColor: 'text-white'
               },
               {
                 name: 'Vyper',
                 icon: '◈',
                 description: 'Pythonic language designed for contract security',
                 features: ['Vyper Syntax', 'VSR Registry', 'Memory Safety', 'Overflow Protection'],
-                color: 'bg-green-500/20 hover:bg-green-500/30 border-green-500/50',
-                textColor: 'text-green-300'
+                color: 'bg-white/5 hover:bg-white/10 border-gray-400/30',
+                textColor: 'text-white'
               },
             ].map((lang, index) => (
               <motion.div
