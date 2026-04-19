@@ -1,6 +1,11 @@
 // Groq API Integration Service
 
 import Groq from 'groq-sdk';
+import {
+  SOLIDITY_AI_SPECIFIC_PATTERNS,
+  CAIRO_AI_SPECIFIC_PATTERNS,
+  VYPER_AI_SPECIFIC_PATTERNS
+} from '@/lib/ai-specific-patterns';
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY || '',
@@ -48,7 +53,7 @@ Always respond in valid JSON format with the following structure:
         }
       ],
       model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
-      temperature: 0.2,
+      temperature: 0,
       max_tokens: 2000,
       response_format: { type: 'json_object' }
     });
@@ -123,7 +128,7 @@ export async function getContractOverview(contractCode: string): Promise<{
         }
       ],
       model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
-      temperature: 0.3,
+      temperature: 0,
       max_tokens: 1500,
       response_format: { type: 'json_object' }
     });
@@ -186,7 +191,7 @@ Return JSON with:
         }
       ],
       model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
-      temperature: 0.2,
+      temperature: 0,
       max_tokens: 800,
       response_format: { type: 'json_object' }
     });
@@ -227,6 +232,25 @@ export async function performFullAIAnalysis(
   language: string = 'solidity'
 ): Promise<AIDiscoveredVulnerability[]> {
   try {
+    // Get language-specific AI patterns
+    const getLanguagePatterns = (lang: string) => {
+      switch (lang.toLowerCase()) {
+        case 'solidity':
+          return SOLIDITY_AI_SPECIFIC_PATTERNS;
+        case 'cairo':
+          return CAIRO_AI_SPECIFIC_PATTERNS;
+        case 'vyper':
+          return VYPER_AI_SPECIFIC_PATTERNS;
+        default:
+          return [];
+      }
+    };
+
+    const patterns = getLanguagePatterns(language);
+    const patternsList = patterns
+      .map(p => `- ${p.name}: ${p.description}`)
+      .join('\n');
+
     const completion = await groq.chat.completions.create({
       messages: [
         {
@@ -234,6 +258,9 @@ export async function performFullAIAnalysis(
           content: `You are an expert ${language} smart contract security auditor with deep knowledge of common vulnerabilities, gas optimization issues, and business logic flaws.
           
 Your task is to scan ${language} contract code and find ALL potential security vulnerabilities and issues.
+
+IMPORTANT: Focus especially on these vulnerability patterns that are often missed by static analysis:
+${patternsList}
 
 Return a JSON array of vulnerabilities found. For each vulnerability include:
 - name: Short vulnerability name
@@ -246,7 +273,7 @@ Return a JSON array of vulnerabilities found. For each vulnerability include:
 - cweIds: Array of relevant CWE IDs
 - confidence: High|Medium|Low (your confidence this is a real issue)
 
-Focus on:
+Additional focus areas:
 1. Logic errors and state management issues
 2. Reentrancy and call chain vulnerabilities
 3. Integer overflow/underflow
@@ -260,11 +287,11 @@ If you don't find vulnerabilities, return an empty array: []`
         },
         {
           role: 'user',
-          content: `Analyze this ${language} contract for ALL potential vulnerabilities:\n\n\`\`\`${language}\n${contractCode}\n\`\`\`\n\nReturn ONLY a valid JSON array of vulnerabilities. Start with [ and end with ].`
+          content: `Analyze this ${language} contract for ALL potential vulnerabilities, especially focusing on the patterns listed above:\n\n\`\`\`${language}\n${contractCode}\n\`\`\`\n\nReturn ONLY a valid JSON array of vulnerabilities. Start with [ and end with ].`
         }
       ],
       model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
-      temperature: 0.3,
+      temperature: 0,
       max_tokens: 4000,
       response_format: { type: 'json_object' }
     });
