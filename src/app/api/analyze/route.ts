@@ -109,23 +109,27 @@ export async function POST(request: NextRequest) {
 
     const startTime = Date.now();
     const analysisId = uuidv4();
-    let allVulnerabilities: Vulnerability[] = [];
+    let staticVulnerabilities: Vulnerability[] = [];
+    let aiVulnerabilities: Vulnerability[] = [];
     let detectedLanguage: string = 'solidity';
 
-    // Static Analysis
+    // Static Analysis (deterministic - will always be the same)
     if (!analysisTypes || analysisTypes.includes('static')) {
       const staticResult = await performStaticAnalysis(contractCode, fileName);
-      allVulnerabilities = [...allVulnerabilities, ...staticResult.vulnerabilities];
+      staticVulnerabilities = [...staticVulnerabilities, ...staticResult.vulnerabilities];
       detectedLanguage = staticResult.language || 'solidity';
     }
 
-    // Full AI Analysis - Scans code for ADDITIONAL vulnerabilities
+    // Full AI Analysis - Scans code for ADDITIONAL vulnerabilities (separate from score)
+    let aiVulnerabilitiesAnalyzed = 0;
+    let aiDuplicatesFiltered = 0;
+    
     if (!analysisTypes || analysisTypes.includes('ai')) {
       try {
         const aiDiscoveredVulns = await performFullAIAnalysis(contractCode, detectedLanguage);
         
-        // Add AI-discovered vulnerabilities and mark them as 'ai-detected'
-        // BUT: Validate they actually exist in the code to prevent false positives
+        // Add AI-discovered vulnerabilities (but keep separate from static)
+        // Validate they actually exist in the code to prevent false positives
         for (const aiVuln of aiDiscoveredVulns) {
           // Validate: Check if the vulnerability evidence actually exists in code
           const isValidFinding = validateAIFinding(aiVuln, contractCode, detectedLanguage);
@@ -135,31 +139,45 @@ export async function POST(request: NextRequest) {
             continue; // Skip false positive
           }
           
-          // Avoid duplicate detection - check if similar vulnerability already exists
-          const isDuplicate = allVulnerabilities.some(
-            v => v.name.toLowerCase() === aiVuln.name.toLowerCase() && 
-                 Math.abs(v.lineNumber - aiVuln.lineNumber) < 3 // Within 3 lines
+          aiVulnerabilitiesAnalyzed++;
+          
+          // Avoid duplicate detection - STRICTER: Only filter exact duplicates (same name + same CWE, not just nearby)
+          const isDuplicate = staticVulnerabilities.some(
+            v => {
+              // Exact name match AND same CWE classification = duplicate
+              if (v.name.toLowerCase() === aiVuln.name.toLowerCase()) {
+                // Only consider it duplicate if BOTH name and CWE match exactly
+                if (v.cweIds?.some(cwe => aiVuln.cweIds?.includes(cwe))) {
+                  return true; // Same vulnerability, already caught by static
+                }
+              }
+              return false;
+            }
           );
           
-          if (!isDuplicate) {
-            allVulnerabilities.push({
-              id: uuidv4(),
-              name: aiVuln.name,
-              type: 'AI-Discovered',
-              description: aiVuln.description,
-              severity: aiVuln.severity,
-              lineNumber: aiVuln.lineNumber,
-              codeSnippet: aiVuln.codeSnippet,
-              exploitationScenario: aiVuln.exploitationScenario,
-              recommendation: aiVuln.recommendation,
-              detectionMethod: 'ai-detected', // Mark as AI-found
-              confidence: aiVuln.confidence,
-              cweIds: aiVuln.cweIds,
-              swcId: aiVuln.cweIds[0] || 'N/A',
-              references: [],
-              scsvIds: []
-            });
+          if (isDuplicate) {
+            aiDuplicatesFiltered++;
+            continue; // Skip this duplicate
           }
+          
+          aiVulnerabilities.push({
+            id: uuidv4(),
+            name: aiVuln.name,
+            type: 'AI-Discovered',
+            description: aiVuln.description,
+            severity: aiVuln.severity,
+            lineNumber: aiVuln.lineNumber,
+            codeSnippet: aiVuln.codeSnippet,
+            exploitationScenario: aiVuln.exploitationScenario,
+            recommendation: aiVuln.recommendation,
+            detectionMethod: 'ai', // Mark as AI-found
+            confidence: aiVuln.confidence,
+            cweIds: aiVuln.cweIds,
+            swcId: aiVuln.cweIds[0] || 'N/A',
+            ethTrustImpact: 0,
+            references: [],
+            scsvIds: []
+          });
         }
       } catch (error) {
         console.error('Error performing full AI analysis:', error);
@@ -167,8 +185,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // AI Enhancement for top Critical/High vulnerabilities
-    const topVulnerabilities = allVulnerabilities
+    // AI Enhancement for top Critical/High static vulnerabilities only
+    const topVulnerabilities = staticVulnerabilities
       .filter(v => v.severity === 'Critical' || v.severity === 'High')
       .slice(0, 3);
 
@@ -192,11 +210,9 @@ export async function POST(request: NextRequest) {
           vuln.recommendation = enhanced.recommendation;
         }
         
-        // Update detection method for already-static vulns, or mark AI-detected as 'ai-enhanced'
+        // Mark as hybrid for static vulnerabilities that got AI enhancement
         if (vuln.detectionMethod === 'static') {
           vuln.detectionMethod = 'hybrid'; // Static + AI enhancement
-        } else if (vuln.detectionMethod === 'ai-detected') {
-          vuln.detectionMethod = 'ai-optimized'; // AI-detected + further enhanced
         }
       } catch (error) {
         console.error('Error enhancing vulnerability:', error);
@@ -204,7 +220,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Filter by severity if specified
+    // Filter static vulnerabilities by severity if specified
+    let filteredStaticVulnerabilities = staticVulnerabilities;
     if (severity && severity !== 'all') {
       const severityMap: Record<string, string[]> = {
         critical: ['Critical'],
@@ -213,13 +230,13 @@ export async function POST(request: NextRequest) {
         low: ['Critical', 'High', 'Medium', 'Low']
       };
       const allowedSeverities = severityMap[severity] || [];
-      allVulnerabilities = allVulnerabilities.filter(v =>
+      filteredStaticVulnerabilities = staticVulnerabilities.filter(v =>
         allowedSeverities.includes(v.severity)
       );
     }
 
-    // Generate informational findings when contract passes security checks
-    if (allVulnerabilities.length === 0) {
+    // Generate informational findings when contract passes security checks (static only)
+    if (staticVulnerabilities.length === 0) {
       // Add positive informational findings
       const infoFindings = [];
       
@@ -262,31 +279,41 @@ export async function POST(request: NextRequest) {
         references: []
       });
 
-      allVulnerabilities.push(...infoFindings);
+      filteredStaticVulnerabilities.push(...infoFindings);
     }
 
-    // Calculate statistics
+    // Calculate statistics for STATIC vulnerabilities only
     const statistics = {
-      total: allVulnerabilities.length,
-      critical: allVulnerabilities.filter(v => v.severity === 'Critical').length,
-      high: allVulnerabilities.filter(v => v.severity === 'High').length,
-      medium: allVulnerabilities.filter(v => v.severity === 'Medium').length,
-      low: allVulnerabilities.filter(v => v.severity === 'Low').length,
-      info: allVulnerabilities.filter(v => v.severity === 'Info').length
+      total: filteredStaticVulnerabilities.length,
+      critical: filteredStaticVulnerabilities.filter(v => v.severity === 'Critical').length,
+      high: filteredStaticVulnerabilities.filter(v => v.severity === 'High').length,
+      medium: filteredStaticVulnerabilities.filter(v => v.severity === 'Medium').length,
+      low: filteredStaticVulnerabilities.filter(v => v.severity === 'Low').length,
+      info: filteredStaticVulnerabilities.filter(v => v.severity === 'Info').length
     };
 
-    // Calculate security score
+    // Calculate statistics for AI vulnerabilities (informational only)
+    const aiStatistics = {
+      total: aiVulnerabilities.length,
+      critical: aiVulnerabilities.filter(v => v.severity === 'Critical').length,
+      high: aiVulnerabilities.filter(v => v.severity === 'High').length,
+      medium: aiVulnerabilities.filter(v => v.severity === 'Medium').length,
+      low: aiVulnerabilities.filter(v => v.severity === 'Low').length,
+      info: aiVulnerabilities.filter(v => v.severity === 'Info').length
+    };
+
+    // Calculate security score based ONLY on STATIC vulnerabilities (deterministic)
     const securityScore = calculateSecurityScore(statistics);
     const riskLevel = getRiskLevel(securityScore);
 
-    // Calculate EthTrust Level
+    // Calculate EthTrust Level based ONLY on static vulnerabilities
     const ethTrustLevel = calculateEthTrustLevel(statistics);
     const ethTrustDef = getEthTrustLevelDefinition(ethTrustLevel);
 
-    // SCSVS v2 Compliance Check
+    // SCSVS v2 Compliance Check based on STATIC vulnerabilities
     const scsvResults = SCSVS_V2_CONTROLS.map(control => {
-      // Simple compliance check based on vulnerabilities
-      const relatedVulns = allVulnerabilities.filter(v =>
+      // Simple compliance check based on static vulnerabilities only
+      const relatedVulns = filteredStaticVulnerabilities.filter(v =>
         v.scsvIds?.includes(control.id)
       );
 
@@ -335,10 +362,10 @@ export async function POST(request: NextRequest) {
       recommendations.push(`MEDIUM: ${statistics.medium} medium-risk findings should be fixed in the next development cycle`);
     }
     
-    // Check for specific vulnerability types
-    const hasReentrancy = allVulnerabilities.some(v => v.name.toLowerCase().includes('reentrancy'));
-    const hasAccessControl = allVulnerabilities.some(v => v.name.toLowerCase().includes('access') || v.name.toLowerCase().includes('authorization'));
-    const hasIntegerIssues = allVulnerabilities.some(v => v.name.toLowerCase().includes('overflow') || v.name.toLowerCase().includes('underflow'));
+    // Check for specific vulnerability types (in STATIC vulns only)
+    const hasReentrancy = filteredStaticVulnerabilities.some(v => v.name.toLowerCase().includes('reentrancy'));
+    const hasAccessControl = filteredStaticVulnerabilities.some(v => v.name.toLowerCase().includes('access') || v.name.toLowerCase().includes('authorization'));
+    const hasIntegerIssues = filteredStaticVulnerabilities.some(v => v.name.toLowerCase().includes('overflow') || v.name.toLowerCase().includes('underflow'));
     
     if (hasReentrancy) {
       recommendations.push('Implement checks-effects-interactions pattern for external calls');
@@ -365,7 +392,7 @@ export async function POST(request: NextRequest) {
     recommendations.push(ethTrustDef.recommendation);
     
     // Add best practices based on code metrics
-    if (allVulnerabilities.length === 0 && statistics.total === 0) {
+    if (filteredStaticVulnerabilities.length === 0 && statistics.total === 0) {
       recommendations.push('✓ No vulnerabilities detected - maintain this quality with regular code reviews');
       recommendations.push('Consider implementing additional security measures like formal verification or runtime monitoring');
     } else {
@@ -381,10 +408,17 @@ export async function POST(request: NextRequest) {
       contractCode,
       fileName: normalizedFileName,
       language: detectedLanguage,
-      securityScore,
+      securityScore, // Based ONLY on static vulnerabilities
       riskLevel,
-      vulnerabilities: allVulnerabilities,
-      statistics,
+      vulnerabilities: filteredStaticVulnerabilities, // Static vulnerabilities only
+      statistics, // Static statistics only
+      aiFindings: aiVulnerabilities, // AI-discovered vulnerabilities (informational)
+      aiStatistics, // AI statistics (informational)
+      deduplicationReport: {
+        aiVulnerabilitiesAnalyzed,
+        aiDuplicatesFiltered,
+        aiUniqueFindings: aiVulnerabilities.length
+      },
       scsvCompliance,
       ethTrustLevel,
       recommendations,
