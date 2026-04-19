@@ -26,16 +26,30 @@ export interface AnalysisResult {
   contractCode: string;
   fileName: string;
   language?: string;
-  securityScore: number;
+  securityScore: number; // Static analysis score only (100% deterministic)
   riskLevel: 'Critical' | 'High' | 'Medium' | 'Low' | 'Secure';
-  vulnerabilities: Vulnerability[];
+  vulnerabilities: Vulnerability[]; // Static vulnerabilities only
   statistics: {
+    total: number; // Static vulnerabilities only
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+    info: number;
+  };
+  aiFindings: Vulnerability[]; // AI-detected vulnerabilities (separate, informational)
+  aiStatistics: {
     total: number;
     critical: number;
     high: number;
     medium: number;
     low: number;
     info: number;
+  };
+  deduplicationReport: {
+    aiVulnerabilitiesAnalyzed: number;
+    aiDuplicatesFiltered: number;
+    aiUniqueFindings: number;
   };
   scsvCompliance: {
     passed: number;
