@@ -49,6 +49,9 @@ export default function OverviewDashboard({ result }: OverviewDashboardProps) {
           </div>
           <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">{result.securityScore}</div>
           <div className="text-xs text-gray-500 mt-1">out of 100</div>
+          <div className="mt-2 inline-block px-2 py-1 border border-blue-600 text-blue-600 rounded text-xs font-semibold">
+            Static Analysis
+          </div>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
@@ -84,15 +87,18 @@ export default function OverviewDashboard({ result }: OverviewDashboardProps) {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
+        <div className="bg-white border-2 border-purple-600 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-purple-700 text-sm font-medium">AI Analysis</span>
+            <span className="text-purple-600 text-sm font-medium">AI Enhanced Findings</span>
             <Bot className="w-5 h-5 text-purple-600" />
           </div>
           <div className="text-3xl font-bold text-purple-600">
-            {result.vulnerabilities.filter(v => v.detectionMethod === 'ai-detected' || v.detectionMethod === 'ai-optimized').length}
+            {result.aiFindings?.length || 0}
           </div>
-          <div className="text-xs text-purple-600 mt-1">findings by AI</div>
+          <div className="text-xs text-gray-500 mt-1">additional AI-detected issues</div>
+          <div className="mt-2 text-xs text-gray-600 italic">
+            (Informational only)
+          </div>
         </div>
       </div>
 
