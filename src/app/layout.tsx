@@ -5,7 +5,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'AI Smart Contract Auditor | Secure Your Solidity Code',
+  title: 'AI Smart Contract Auditor | Secure Your Smart Contract',
   description: 'AI-powered smart contract security analysis with SWC, SCSVS v2, and EthTrust standards',
 };
 
