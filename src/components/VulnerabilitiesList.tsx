@@ -35,12 +35,12 @@ export default function VulnerabilitiesList({ vulnerabilities, language }: Vulne
   // Get detection method badge
   const getDetectionBadge = (method: string) => {
     switch(method) {
-      case 'ai-detected':
+      case 'ai':
         return { bg: 'bg-purple-100', text: 'text-purple-700', label: 'AI-Detected', icon: Bot };
-      case 'ai-optimized':
-        return { bg: 'bg-indigo-100', text: 'text-indigo-700', label: 'AI-Optimized', icon: Sparkles };
       case 'hybrid':
         return { bg: 'bg-cyan-100', text: 'text-cyan-700', label: 'Static + AI', icon: Zap };
+      case 'dynamic':
+        return { bg: 'bg-orange-100', text: 'text-orange-700', label: 'Dynamic', icon: BarChart3 };
       case 'static':
       default:
         return { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Static', icon: BarChart3 };
@@ -52,9 +52,9 @@ export default function VulnerabilitiesList({ vulnerabilities, language }: Vulne
   );
 
   // Count AI findings
-  const aiDetectedCount = vulnerabilities.filter(v => v.detectionMethod === 'ai-detected').length;
-  const aiOptimizedCount = vulnerabilities.filter(v => v.detectionMethod === 'ai-optimized').length;
-  const totalAIFindings = aiDetectedCount + aiOptimizedCount;
+  const aiDetectedCount = vulnerabilities.filter(v => v.detectionMethod === 'ai').length;
+  const aiHybridCount = vulnerabilities.filter(v => v.detectionMethod === 'hybrid').length;
+  const totalAIFindings = aiDetectedCount + aiHybridCount;
 
   if (vulnerabilities.length === 0) {
     return (
@@ -81,9 +81,9 @@ export default function VulnerabilitiesList({ vulnerabilities, language }: Vulne
               <div className="min-w-0">
                 <h3 className="font-semibold text-purple-900 text-sm md:text-base">AI Analysis Report</h3>
                 <p className="text-xs md:text-sm text-purple-700">
-                  {aiDetectedCount > 0 && `${aiDetectedCount} new vulnerabilities discovered by AI`}
-                  {aiDetectedCount > 0 && aiOptimizedCount > 0 && ' + '}
-                  {aiOptimizedCount > 0 && `${aiOptimizedCount} findings enhanced with AI insights`}
+                  {aiDetectedCount > 0 && `${aiDetectedCount} vulnerabilities discovered by AI`}
+                  {aiDetectedCount > 0 && aiHybridCount > 0 && ' + '}
+                  {aiHybridCount > 0 && `${aiHybridCount} findings enhanced with AI insights`}
                 </p>
               </div>
             </div>
