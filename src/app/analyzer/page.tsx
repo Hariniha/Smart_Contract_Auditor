@@ -10,16 +10,21 @@ import {
   ArrowLeft,
   Github,
   Code2,
+  CheckCircle2,
+  X,
+  Lightbulb,
 } from 'lucide-react';
 import CodeEditor from '@/components/CodeEditor';
 import AnalysisResults from '@/components/AnalysisResults';
 import SampleLoader from '@/components/SampleLoader';
 import AnalysisProgress from '@/components/AnalysisProgress';
 import { AnalysisResult } from '@/types';
+import { suggestFileName } from '@/lib/contract-name-suggester';
 
 export default function AnalyzerPage() {
   const [contractCode, setContractCode] = useState('');
   const [fileName, setFileName] = useState('');
+  const [suggestedFileName, setSuggestedFileName] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(
     null,
@@ -32,6 +37,17 @@ export default function AnalyzerPage() {
   const isValidContractFileName = (name: string) => {
     const trimmed = name.trim();
     return /^[^\\/:*?"<>|]+\.(sol|vy|cairo)$/i.test(trimmed);
+  };
+
+  const acceptSuggestedFileName = () => {
+    if (suggestedFileName) {
+      setFileName(suggestedFileName);
+      setSuggestedFileName('');
+    }
+  };
+
+  const rejectSuggestedFileName = () => {
+    setSuggestedFileName('');
   };
 
   const runAnalysis = async (
@@ -134,6 +150,13 @@ export default function AnalyzerPage() {
         const content = e.target?.result as string;
         setContractCode(content);
         setFileName(file.name);
+        
+        // Suggest a better filename based on contract analysis
+        const suggested = suggestFileName(content);
+        if (suggested && suggested !== file.name) {
+          setSuggestedFileName(suggested);
+        }
+        
         setError(null);
         // Switch to code view so users can immediately see uploaded content.
         setActiveTab('paste');
@@ -145,6 +168,13 @@ export default function AnalyzerPage() {
   const handleLoadSample = (code: string, name: string) => {
     setContractCode(code);
     setFileName(name);
+    
+    // Suggest a better filename based on contract analysis
+    const suggested = suggestFileName(code);
+    if (suggested && suggested !== name) {
+      setSuggestedFileName(suggested);
+    }
+    
     setAnalysisResult(null);
   };
 
@@ -193,6 +223,13 @@ export default function AnalyzerPage() {
 
       setContractCode(fetchedCode);
       setFileName(fetchedFileName);
+      
+      // Suggest a better filename based on contract analysis
+      const suggested = suggestFileName(fetchedCode);
+      if (suggested && suggested !== fetchedFileName) {
+        setSuggestedFileName(suggested);
+      }
+      
       setAnalysisResult(null);
       setActiveTab('paste');
 
@@ -270,6 +307,38 @@ export default function AnalyzerPage() {
                     placeholder='contract.sol / contract.vy / contract.cairo'
                     className='w-full px-3 md:px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-emerald-500 text-gray-900 text-sm'
                   />
+                  
+                  {/* Suggestion Alert */}
+                  {suggestedFileName && (
+                    <div className='mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-start justify-between gap-3'>
+                      <div className='flex items-start gap-2 flex-1'>
+                        <Lightbulb className='w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0' />
+                        <div>
+                          <p className='text-xs font-semibold text-blue-900'>Suggested name:</p>
+                          <p className='text-sm text-blue-700 font-mono mt-1'>{suggestedFileName}</p>
+                        </div>
+                      </div>
+                      <div className='flex gap-2 flex-shrink-0'>
+                        <button
+                          type='button'
+                          onClick={acceptSuggestedFileName}
+                          className='p-1.5 hover:bg-blue-100 rounded-lg transition-colors text-blue-600'
+                          title='Accept suggestion'
+                        >
+                          <CheckCircle2 className='w-4 h-4' />
+                        </button>
+                        <button
+                          type='button'
+                          onClick={rejectSuggestedFileName}
+                          className='p-1.5 hover:bg-blue-100 rounded-lg transition-colors text-gray-400 hover:text-gray-600'
+                          title='Dismiss suggestion'
+                        >
+                          <X className='w-4 h-4' />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
                   {fileName.trim() && !isValidContractFileName(fileName) && (
                     <p className='mt-2 text-xs md:text-sm text-red-600'>
                       Use a valid file name ending with .sol, .vy, or .cairo
@@ -303,7 +372,16 @@ export default function AnalyzerPage() {
                 {/* Tabs */}
                 <div className='flex gap-1 md:gap-2 mb-4 border-b border-gray-200 overflow-x-auto'>
                   <button
-                    onClick={() => setActiveTab('paste')}
+                    onClick={() => {
+                      setActiveTab('paste');
+                      // If there's code but no suggestion, try to suggest one
+                      if (contractCode.trim() && !suggestedFileName && !fileName) {
+                        const suggested = suggestFileName(contractCode);
+                        if (suggested) {
+                          setSuggestedFileName(suggested);
+                        }
+                      }
+                    }}
                     className={`flex items-center px-3 md:px-6 py-2 md:py-3 font-semibold transition-all border-b-2 text-xs md:text-base whitespace-nowrap ${
                       activeTab === 'paste'
                         ? 'border-blue-500 text-blue-600'
@@ -329,7 +407,18 @@ export default function AnalyzerPage() {
                   <div>
                     <textarea
                       value={contractCode}
-                      onChange={(e) => setContractCode(e.target.value)}
+                      onChange={(e) => {
+                        const code = e.target.value;
+                        setContractCode(code);
+                        
+                        // Suggest a better filename if code is substantial
+                        if (code.trim().length > 50 && !fileName) {
+                          const suggested = suggestFileName(code);
+                          if (suggested) {
+                            setSuggestedFileName(suggested);
+                          }
+                        }
+                      }}
                       placeholder={`Paste your code here...
 
 Example:
