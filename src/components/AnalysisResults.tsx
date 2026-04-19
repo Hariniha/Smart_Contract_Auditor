@@ -31,6 +31,20 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
     <div className="space-y-4 md:space-y-6">
       {/* Header */}
       <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-6 shadow-md">
+        {/* Static Analysis Banner */}
+        <div className="border-l-4 border-blue-600 pl-4 mb-4">
+          <div className="flex items-start gap-3">
+            <Shield className="w-5 md:w-6 h-5 md:h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-gray-900 text-sm md:text-base">Static Analysis Security Score</h3>
+              <p className="text-xs md:text-sm text-gray-600 mt-1">
+                The security score (85/100) is based on <strong>static code analysis only</strong>. 
+                This analyzes the code without executing it for vulnerabilities, weaknesses, and security issues.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-0 mb-4">
           <div className="flex-1">
             <h1 className="text-lg md:text-2xl font-bold mb-2 text-gray-900">Analysis Results</h1>
@@ -41,7 +55,7 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
                   {result.language.charAt(0).toUpperCase() + result.language.slice(1)}
                 </span>
               )}
-              {result.vulnerabilities.some(v => v.detectionMethod === 'ai-detected' || v.detectionMethod === 'ai-optimized') && (
+              {result.vulnerabilities.some(v => v.detectionMethod === 'ai' || v.detectionMethod === 'hybrid') && (
                 <span className="px-2 md:px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 border border-purple-300 flex items-center gap-1 whitespace-nowrap">
                   <Bot className="w-3 h-3" />
                   <span className="hidden sm:inline">AI Enhanced Analysis</span>
@@ -62,16 +76,16 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
           </div>
         </div>
 
-        {/* AI Analysis Info Banner */}
-        {result.vulnerabilities.some(v => v.detectionMethod === 'ai-detected' || v.detectionMethod === 'ai-optimized') && (
-          <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-3 md:p-4 mt-4">
-            <div className="flex items-start gap-2 md:gap-3">
-              <Bot className="w-5 md:w-6 h-5 md:h-6 text-purple-600 flex-shrink-0" />
+        {/* AI Analysis Info Banner - Make it clear it's separate */}
+        {(result.aiFindings && result.aiFindings.length > 0) && (
+          <div className="border-l-4 border-purple-600 pl-4 mt-4">
+            <div className="flex items-start gap-3">
+              <Bot className="w-5 md:w-6 h-5 md:h-6 text-purple-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-purple-900 text-sm md:text-base">Advanced AI Analysis Included</h3>
-                <p className="text-xs md:text-sm text-purple-700 mt-1">
-                  This analysis includes vulnerabilities discovered by AI pattern recognition in addition to static analysis. 
-                  AI-detected findings are marked with a purple badge in the vulnerabilities list.
+                <h3 className="font-semibold text-gray-900 text-sm md:text-base">Optional: AI-Enhanced Insights</h3>
+                <p className="text-xs md:text-sm text-gray-600 mt-1">
+                  <strong>{result.aiFindings.length} additional issue(s)</strong> detected by AI analysis. 
+                  These are <strong>informational only</strong> and <strong>do NOT affect the Security Score</strong>.
                 </p>
               </div>
             </div>
@@ -112,7 +126,49 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
         {/* Tab Content */}
         <div className="animate-fade-in">
           {activeTab === 'overview' && <OverviewDashboard result={result} />}
-          {activeTab === 'vulnerabilities' && <VulnerabilitiesList vulnerabilities={result.vulnerabilities} language={result.language} />}
+          {activeTab === 'vulnerabilities' && (
+            <div className="space-y-6">
+              {/* Static Vulnerabilities - MAIN */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="px-3 py-1 bg-white border border-blue-600 text-blue-600 rounded text-xs font-bold">
+                    STATIC ANALYSIS
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Security Findings ({result.vulnerabilities.length})</h3>
+                </div>
+                <VulnerabilitiesList vulnerabilities={result.vulnerabilities} language={result.language} />
+              </div>
+              
+              {/* AI Findings - OPTIONAL/SEPARATE */}
+              {result.aiFindings && result.aiFindings.length > 0 && (
+                <div className="border-t pt-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="px-3 py-1 bg-white border border-purple-600 text-purple-600 rounded text-xs font-bold">
+                      OPTIONAL - AI INSIGHTS
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900">Additional Findings ({result.aiFindings.length})</h3>
+                  </div>
+                  
+                  {/* Deduplication Report */}
+                  {result.deduplicationReport && (
+                    <div className="bg-gray-50 border border-gray-200 rounded p-3 mb-4 text-xs text-gray-600">
+                      <p className="font-semibold text-gray-700 mb-1">AI Analysis Metrics:</p>
+                      <ul className="space-y-1 ml-4 list-disc">
+                        <li>AI vulnerabilities identified: <span className="font-semibold text-gray-900">{result.deduplicationReport.aiVulnerabilitiesAnalyzed}</span></li>
+                        <li>Duplicates with static (filtered): <span className="font-semibold text-gray-900">{result.deduplicationReport.aiDuplicatesFiltered}</span></li>
+                        <li>Unique AI findings: <span className="font-semibold text-gray-900">{result.deduplicationReport.aiUniqueFindings}</span></li>
+                      </ul>
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-gray-600 mb-4">
+                    These findings are <strong>informational only</strong> and <strong>do NOT affect your Security Score</strong>.
+                  </p>
+                  <VulnerabilitiesList vulnerabilities={result.aiFindings} language={result.language} />
+                </div>
+              )}
+            </div>
+          )}
           {activeTab === 'standards' && <SecurityStandards result={result} />}
           {activeTab === 'analytics' && <AnalyticsDashboard result={result} />}
         </div>
