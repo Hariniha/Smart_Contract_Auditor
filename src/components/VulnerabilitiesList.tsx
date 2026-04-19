@@ -120,7 +120,7 @@ export default function VulnerabilitiesList({ vulnerabilities, language }: Vulne
         {sortedVulns.map((vuln) => {
           const detectionBadge = getDetectionBadge(vuln.detectionMethod);
           const BadgeIcon = detectionBadge.icon;
-          const isAIFinding = vuln.detectionMethod === 'ai-detected' || vuln.detectionMethod === 'ai-optimized';
+          const isAIFinding = vuln.detectionMethod === 'ai' || vuln.detectionMethod === 'hybrid';
           
           return (
             <div
