@@ -37,9 +37,9 @@ A comprehensive web application that performs dual-layer security analysis of sm
 - ✅ Interactive results dashboard with charts and analytics
 - ✅ SCSVS v2 compliance checking
 - ✅ EthTrust security level assessment
-- ✅ Multiple export formats (PDF, JSON, Text)
+- ✅ PDF export for comprehensive reports
 - ✅ Sample contracts for all supported languages
-- ✅ Contract naming for organized reports
+- ✅ Auto-suggested contract names based on code analysis
 - ✅ Light theme UI with smooth animations
 - ✅ Character and line counter
 - ✅ Responsive design for all devices

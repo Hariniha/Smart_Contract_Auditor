@@ -248,22 +248,42 @@ function cleanText(text: string, maxWidth: number = 80): string {
 }
 
 function getScoreRating(score: number): string {
-  if (score >= 90) return 'Excellent - This contract looks solid';
-  if (score >= 75) return 'Good - Generally secure, just a few minor things to fix';
-  if (score >= 60) return 'Fair - Has some security concerns worth addressing';
-  if (score >= 40) return 'Poor - Significant issues that need fixing';
-  return 'Critical - Serious problems. Fix these before deploying.';
+  if (score >= 90) return 'Excellent - Contract demonstrates strong security practices';
+  if (score >= 75) return 'Good - Contract is generally secure with minor improvements recommended';
+  if (score >= 60) return 'Fair - Contract has security concerns requiring attention';
+  if (score >= 40) return 'Poor - Contract has significant security issues requiring remediation';
+  return 'Critical - Contract requires substantial improvements before deployment';
 }
 
 function getImpactDescription(severity: string): string {
   const impacts: Record<string, string> = {
-    Critical: 'total fund loss or loss of contract control',
-    High: 'significant fund loss or serious contract issues',
-    Medium: 'moderate fund loss or weird behavior',
-    Low: 'minor fund loss or performance issues',
-    Info: 'best practice suggestions'
+    Critical: 'complete loss of funds or complete loss of contract control',
+    High: 'significant loss of funds or severe functional compromise',
+    Medium: 'moderate loss of funds or unexpected contract behavior',
+    Low: 'limited impact on functionality or minor resource inefficiency',
+    Info: 'operational best practice recommendations'
   };
   return impacts[severity] || 'undefined impact';
+}
+
+function extractContractName(code: string, language: string): string {
+  const lang = language.toLowerCase();
+  
+  if (lang === 'solidity') {
+    // Match: contract ContractName { or contract ContractName is ...
+    const match = code.match(/contract\s+(\w+)\s*(?:\{|is\s|;)/);
+    return match ? match[1] : 'Unknown';
+  } else if (lang === 'vyper') {
+    // Vyper contracts don't have explicit contract names, use filename or @external
+    const match = code.match(/@external|@internal|def\s+\w+/);
+    return match ? 'VyperContract' : 'Unknown';
+  } else if (lang === 'cairo') {
+    // Cairo contracts have a contract or module declaration
+    const match = code.match(/contract\s+(\w+)\s*\{|module\s+(\w+)/);
+    return match ? (match[1] || match[2]) : 'CairoContract';
+  }
+  
+  return 'Unknown';
 }
 
 // ============================================================================
@@ -306,6 +326,7 @@ export function generateTextAuditReport(result: AnalysisResult): string {
   // Calculate contract metrics
   const contractMetrics = calculateContractMetrics(result.contractCode, result.language || 'unknown');
   const ethTrustDef = getEthTrustLevelDefinition(result.ethTrustLevel);
+  const contractName = extractContractName(result.contractCode, result.language || 'unknown');
 
   // ============================================================================
   // TITLE & HEADER
@@ -313,17 +334,19 @@ export function generateTextAuditReport(result: AnalysisResult): string {
   addLine();
   addLine(centerText('SMART CONTRACT SECURITY AUDIT REPORT', 80));
   addLine(thinDivider);
-  addSpacing(2);
+  addSpacing(1);
 
   // ============================================================================
   // EXECUTIVE SUMMARY
   // ============================================================================
   addSection('EXECUTIVE SUMMARY');
+  addKeyValue('Contract Name', contractName);
   addKeyValue('Security Score', `${result.securityScore}/100`);
-  addKeyValue('Risk Level', result.riskLevel.toUpperCase());
+  const riskLevelFormatted = result.riskLevel.charAt(0).toUpperCase() + result.riskLevel.slice(1).toLowerCase();
+  addKeyValue('Risk Level', riskLevelFormatted);
   addKeyValue('Analysis Date', formatDate(new Date(result.timestamp)));
   addKeyValue('Analysis Time', new Date(result.timestamp).toLocaleTimeString());
-  addKeyValue('Audit Duration', `${(result.analysisTime / 1000).toFixed(2)}s`);
+  addKeyValue('Audit Duration', `${(result.analysisTime / 1000).toFixed(2)} seconds`);
   addLine();
   addKeyValue('Contract Language', result.language?.toUpperCase() || 'UNKNOWN');
   addKeyValue('Audit ID', result.analysisId);
@@ -340,6 +363,9 @@ export function generateTextAuditReport(result: AnalysisResult): string {
   // CONTRACT DETAILS
   // ============================================================================
   addSection('CONTRACT DETAILS');
+  
+  // Display contract name and file information
+  addKeyValue('Contract Name', contractName);
   addKeyValue('File Name', result.fileName);
   addKeyValue('File Size', `${(result.contractCode.length / 1024).toFixed(2)} KB`);
   addKeyValue('Language', result.language?.toUpperCase() || 'UNKNOWN');
@@ -359,11 +385,12 @@ export function generateTextAuditReport(result: AnalysisResult): string {
   const scoreRating = getScoreRating(result.securityScore);
   addKeyValue('Overall Risk Assessment', scoreRating);
   addKeyValue('Security Score', `${result.securityScore}/100`);
-  addKeyValue('Primary Risk Level', result.riskLevel.toUpperCase());
+  const riskLevel2 = result.riskLevel.charAt(0).toUpperCase() + result.riskLevel.slice(1).toLowerCase();
+  addKeyValue('Primary Risk Level', riskLevel2);
   addLine();
-  addLine('We analyzed this contract using three approaches: static code pattern detection,');
-  addLine('runtime behavior analysis, and AI-powered code understanding. Check the Compliance');
-  addLine('Metrics section below for more details on what we tested.');
+  addLine('The smart contract was analyzed using a multi-layered security assessment approach');
+  addLine('combining static code analysis, pattern-based detection, and AI-powered semantic analysis.');
+  addLine();
 
   // ============================================================================
   // DETAILED VULNERABILITY REPORT
@@ -439,8 +466,8 @@ export function generateTextAuditReport(result: AnalysisResult): string {
     addLine();
     addLine('✓ NO VULNERABILITIES DETECTED');
     addLine();
-    addLine('Great news! We didn\'t find any security issues in this contract.');
-    addLine('It passed our analysis without flags.');
+    addLine('The automated security analysis did not identify vulnerabilities in the provided contract.');
+    addLine('Manual security review by professionals is still recommended for production deployments.');
   }
 
   // ============================================================================
@@ -462,99 +489,15 @@ export function generateTextAuditReport(result: AnalysisResult): string {
   });
   
   addLine();
-  addLine('HOW THE AI WORKS:');
-  addBullet('Our AI model has been trained on thousands of real vulnerability patterns to');
-  addLine('  recognize security issues in your code.');
+  addLine('AI ANALYSIS METHODOLOGY:');
+  addBullet('The AI-assisted analysis model leverages machine learning trained on known smart');
+  addLine('  contract vulnerability patterns for semantic code understanding.');
   addSpacing(1);
-  addBullet('The confidence score tells you how sure the AI is about each finding. A high');
-  addLine('  score means the issue is more likely to be real.');
+  addBullet('Confidence scoring represents the model\'s certainty regarding each identified finding.');
+  addLine('  Higher confidence scores indicate greater likelihood of valid security issues.');
   addSpacing(1);
-  addBullet('Every finding gets double-checked against industry standards like the SWC Registry,');
-  addLine('  CWE Database, and OWASP guidelines to make sure it\'s legit.');
-
-  // ============================================================================
-  // COMPLIANCE METRICS
-  // ============================================================================
-  addSection('COMPLIANCE METRICS');
-  
-  addSubsection('Smart Contract Weakness Classification (SWC) Registry');
-  const swcVulns = groupBySwcId(result.vulnerabilities);
-  if (Object.keys(swcVulns).length > 0) {
-    Object.entries(swcVulns).forEach(([swcId, vulns]) => {
-      addLine(`  • ${swcId}: ${(vulns as any[]).length} finding(s)`);
-    });
-  } else {
-    addLine('  No SWC-mapped vulnerabilities detected.');
-  }
-
-  addSubsection('Secure Coding Verification Standard (SCSVS) v2');
-  addKeyValue('Overall Compliance Rate', `${result.scsvCompliance.percentage}%`);
-  addKeyValue('Controls Passed', result.scsvCompliance.passed);
-  addKeyValue('Controls Failed', result.scsvCompliance.failed);
-  addLine();
-  
-  if (result.scsvCompliance.checklist && result.scsvCompliance.checklist.length > 0) {
-    const failedControls = result.scsvCompliance.checklist.filter(c => !c.passed);
-    
-    if (failedControls.length > 0) {
-      addLine('NON-COMPLIANT CONTROLS (by Category):');
-      addLine();
-      
-      // Group failed controls by category
-      const controlsByCategory = new Map<string, typeof failedControls>();
-      failedControls.forEach(control => {
-        if (!controlsByCategory.has(control.category)) {
-          controlsByCategory.set(control.category, []);
-        }
-        controlsByCategory.get(control.category)!.push(control);
-      });
-      
-      // Display each category with its failed controls
-      controlsByCategory.forEach((controls, category) => {
-        addLine(`${category}:`);
-        controls.forEach(control => {
-          addBullet(`[${control.controlId}] ${control.title} (${control.severity})`);
-          if (control.findings && control.findings.length > 0) {
-            control.findings.slice(0, 2).forEach(finding => {
-              addLine(`      Issues: ${finding}`);
-            });
-            if (control.findings.length > 2) {
-              addLine(`      ... and ${control.findings.length - 2} more`);
-            }
-          }
-        });
-        addLine();
-      });
-      
-      if (failedControls.length > 15) {
-        addLine(`Note: Showing ${Math.min(15, failedControls.length)} of ${failedControls.length} failed controls`);
-      }
-    } else {
-      addLine('✓ All SCSVS v2 controls have been successfully validated.');
-    }
-  }
-
-  addSubsection('EthTrust Framework');
-  addKeyValue('Security Level', `Level ${ethTrustDef.level}`);
-  addKeyValue('Classification', ethTrustDef.name);
-  addKeyValue('Risk Rating', ethTrustDef.risk);
-  addLine();
-  addLine('Framework Details:');
-  addLine(`  • Description:             ${ethTrustDef.description}`);
-
-  // ============================================================================
-  // RISK BREAKDOWN ANALYSIS
-  // ============================================================================
-  addSection('RISK BREAKDOWN ANALYSIS');
-  
-  const riskBreakdown = calculateRiskBreakdown(result);
-  addLine('Risk Distribution by Severity:');
-  addLine();
-  
-  Object.entries(riskBreakdown).forEach(([severity, { count, percentage }]) => {
-    const impact = getImpactDescription(severity);
-    addLine(`${severity.padEnd(12)} : ${String(count).padStart(2)} findings (${percentage.toFixed(1)}%) - ${impact}`);
-  });
+  addBullet('All findings are validated against recognized industry security standards');
+  addLine('  including SWC, CWE, and OWASP guidelines.');
 
   // ============================================================================
   // RECOMMENDATIONS SUMMARY
@@ -569,68 +512,46 @@ export function generateTextAuditReport(result: AnalysisResult): string {
       addLine();
     });
   } else {
-    addLine('No specific issues found. Keep following security best practices and monitor your');
-  addLine('contract regularly.');
+    addLine('No specific issues found. Keep following security best practices and monitor your contract regularly.');
   }
 
-  addSubsection('RECOMMENDED SECURITY PRACTICES');
-  addLine();
-  addLine('1. Code Review');
-  addLine('   Have someone experienced in smart contract security review your code.');
-  addLine('   Consider hiring a specialized security firm for production contracts.');
-  addLine();
-  addLine('2. Testing');
-  addLine('   Write unit tests, integration tests, and try fuzzing. Use formal');
-  addLine('   verification for critical parts of your contract.');
-  addLine();
-  addLine('3. Deployment Strategy');
-  addLine('   Always test thoroughly on a testnet first. Roll out slowly to mainnet');
-  addLine('   with circuit breakers and pause mechanisms in place.');
-  addLine();
-  addLine('4. Monitoring');
-  addLine('   Watch your contract closely for unusual activity. Have a plan for what');
-  addLine('   to do if something goes wrong.');
-  addLine();
-  addLine('5. Documentation');
-  addLine('   Write clear docs about how your contract works and what could go wrong.');
-  addLine('   Make it easy for people to understand your architecture and risk vectors.');
-
   // ============================================================================
-  // COMPLIANCE STATEMENT
+  // AUDIT CONCLUSION
   // ============================================================================
-  addSection('COMPLIANCE STATEMENT');
-  addLine();
-  addLine('This report was generated by SmartAudit, which combines multiple testing methods:');
-  addLine();
-  addBullet('Pattern-based detection: Looks for known vulnerability patterns in your code');
-  addSpacing(1);
-  addBullet('AI analysis: Uses machine learning to understand the code semantically');
-  addSpacing(1);
-  addBullet('Standards validation: Checks findings against SWC, CWE, SCSVS, and EthTrust');
-  addSpacing(1);
-  addBullet('Confidence scoring: Rates how confident we are about each finding');
-  addLine();
-  addLine('We follow industry best practices to make sure our audits are thorough and reliable.');
+  addSection('AUDIT CONCLUSION');
+  
+  if (result.vulnerabilities.length > 0) {
+    const criticalCount = result.statistics.critical;
+    const highCount = result.statistics.high;
+    addLine(`This audit identified ${criticalCount} critical and ${highCount} high-severity vulnerabilities`);
+    addLine('requiring immediate remediation before production deployment. Addressing these security');
+    addLine('issues will substantially improve the contract\'s overall security posture.');
+  } else {
+    addLine('The automated analysis did not identify significant vulnerabilities in the provided contract.');
+    addLine('However, comprehensive manual security review is recommended before production deployment.');
+  }
 
   // ============================================================================
   // DISCLAIMER & IMPORTANT NOTICE
   // ============================================================================
   addSection('DISCLAIMER & IMPORTANT NOTICE');
   addLine();
-  addLine('WHAT THIS AUDIT COVERS:');
-  addLine('This is an automated security assessment of your contract at this specific point in');
-  addLine('time. We can\'t promise we\'ll catch every possible issue, especially ones that need');
-  addLine('deep understanding of your business logic.');
+  addLine('AUDIT SCOPE AND LIMITATIONS:');
+  addLine('This automated security assessment evaluates the provided contract source code at the');
+  addLine('time of analysis. Automated analysis may not identify all vulnerabilities, particularly');
+  addLine('complex business logic flaws or context-dependent security issues.');
   addLine();
-  addLine('HOW TO USE THIS REPORT:');
-  addBullet('Don\'t treat this as financial or legal advice.');
+  addLine('RECOMMENDATIONS FOR REPORT USAGE:');
+  addBullet('This report should not be construed as financial, legal, or investment advice.');
   addSpacing(1);
-  addBullet('Review each finding carefully and test any fixes thoroughly before deploying.');
+  addBullet('Each identified finding requires careful review and comprehensive testing of remediation');
+  addLine('  before production deployment.');
   addSpacing(1);
-  addBullet('For production contracts, consider getting a manual security review from a');
-  addLine('  professional audit firm too.');
+  addBullet('For contracts intended for production, professional security audit from specialized');
+  addLine('  smart contract security firms is strongly recommended.');
   addSpacing(1);
-  addBullet('This report is just one part of a complete security strategy.');
+  addBullet('This automated assessment constitutes one component of comprehensive security evaluation');
+  addLine('  and should not be used as the sole security validation mechanism.');
   addLine();
   addLine('KEEP THIS PRIVATE:');
   addLine('This report contains sensitive security details. Only share it with people who');
