@@ -59,7 +59,7 @@ export function generatePDFReport(result: AnalysisResult): void {
 
   // Helper: Add page number footer - positioned absolutely at bottom, outside content flow
   const addPageFooter = () => {
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('Times', 'normal');
     doc.setFontSize(7); // Slightly smaller for subtle footer presence
     doc.setTextColor(120, 120, 120); // Lighter gray for footer
     // Position absolutely at bottom-right, completely outside yPosition flow
@@ -90,7 +90,7 @@ export function generatePDFReport(result: AnalysisResult): void {
   // Helper: Add text with wrapping (left-aligned)
   const addText = (text: string, fontSize: number, isBold: boolean = false, indent: number = 0) => {
     checkPageBreak(8);
-    doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+    doc.setFont('Times', isBold ? 'bold' : 'normal');
     doc.setFontSize(fontSize);
     doc.setTextColor(blackColor.r, blackColor.g, blackColor.b);
     
@@ -105,7 +105,7 @@ export function generatePDFReport(result: AnalysisResult): void {
   // Helper: Add justified paragraph text (full-width aligned)
   const addJustifiedParagraph = (text: string, fontSize: number, indent: number = 0) => {
     checkPageBreak(8);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('Times', 'normal');
     doc.setFontSize(fontSize);
     doc.setTextColor(blackColor.r, blackColor.g, blackColor.b);
     
@@ -151,15 +151,15 @@ export function generatePDFReport(result: AnalysisResult): void {
   // This ensures all key-value rows align to the same invisible metadata grid throughout the document
   const addMetadataRow = (label: string, value: string | number, indent: number = 0) => {
     checkPageBreak(5);
-    doc.setFont('Times', 'normal'); // Bold monospace font for proper weight matching
+    doc.setFont('Courier', 'bold'); // Courier Bold for key-value pairs
     doc.setFontSize(bodyFontSize);
     doc.setTextColor(blackColor.r, blackColor.g, blackColor.b);
     
     const metadataText = formatKeyValue(label, value);
     doc.text(metadataText, margin + indent, yPosition);
     
-    // Switch back to helvetica for next operations
-    doc.setFont('helvetica', 'normal');
+    // Switch back to Times for next operations
+    doc.setFont('Times', 'normal');
     yPosition += bodyFontSize * 0.38 + 0.8; // Consistent line height for metadata
   };
 
@@ -315,8 +315,8 @@ export function generatePDFReport(result: AnalysisResult): void {
               yPosition += codeLineHeight;
             });
             
-            // Reset to helvetica after code block
-            doc.setFont('helvetica', 'normal');
+            // Reset to Times after code block
+            doc.setFont('Times', 'normal');
             doc.setFontSize(bodyFontSize);
             doc.setTextColor(blackColor.r, blackColor.g, blackColor.b);
             
