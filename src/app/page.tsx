@@ -152,8 +152,8 @@ export default function HomePage() {
 
             {/* Description */}
             <p className='text-xs md:text-sm lg:text-base text-gray-300 mb-6 md:mb-8 leading-relaxed text-justify'>
-              Comprehensive security analysis for <strong>Solidity (EVM)</strong>, <strong>Cairo (StarkNet)</strong>,
-              and <strong>Vyper (Python-based)</strong> smart contracts. Combining
+              Comprehensive security analysis for <strong>Solidity (EVM)</strong>, <strong>Vyper (Python-based)</strong> smart contracts
+              and <strong>Cairo (StarkNet)</strong> provable code. Combining
               <strong> static pattern detection</strong> with{' '}
               <strong>dynamic AI analysis</strong> to identify vulnerabilities
               and protect your code across all blockchain platforms.
@@ -413,8 +413,8 @@ export default function HomePage() {
               {
                 name: 'Cairo',
                 icon: '◊',
-                description: 'Starknet\'s proving language for scalable apps',
-                features: ['Cairo Analysis', 'CSR Registry', 'Proof Validation', 'Performance Optimization'],
+                description: 'Starknet\'s proving language for provable code & applications',
+                features: ['Cairo Code Analysis', 'CSR Registry', 'Proof Validation', 'Scalability Patterns'],
                 color: 'bg-white/5 hover:bg-white/10 border-gray-400/30',
                 textColor: 'text-white'
               },
@@ -478,7 +478,7 @@ export default function HomePage() {
                   step: '01',
                   title: 'Upload Your Contract',
                   description:
-                    'Paste or upload your smart contract code. Supports Solidity (.sol), Vyper (.vy), and Cairo (.cairo) files. Auto-detects language.',
+                    'Paste or upload your code. Supports Solidity (.sol), Vyper (.vy) smart contracts, and Cairo (.cairo) provable code. Auto-detects language.',
                   languages: 'Solidity • Cairo • Vyper',
                   icon: <FileSearch className='w-10 h-10 text-emerald-600' />,
                 },
