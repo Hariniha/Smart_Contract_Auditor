@@ -56,10 +56,10 @@ export default function DocumentationPage() {
               <h2 className='text-3xl font-bold text-gray-900'>Overview</h2>
             </div>
             <p className='text-gray-700 leading-relaxed'>
-              SmartAudit is a comprehensive smart contract security analysis
+              SmartAudit is a comprehensive security analysis
               platform that identifies vulnerabilities, security issues, and
-              code quality problems in Solidity, Vyper, and Cairo smart
-              contracts. Our platform combines static pattern detection with
+              code quality problems in Solidity and Vyper smart contracts,
+              plus Cairo provable code. Our platform combines static pattern detection with
               AI-powered analysis for thorough auditing.
             </p>
           </div>
@@ -115,8 +115,8 @@ export default function DocumentationPage() {
               {[
                 {
                   num: 1,
-                  title: 'Input Smart Contract',
-                  desc: 'Paste or upload your contract code',
+                  title: 'Input Your Code',
+                  desc: 'Paste or upload your smart contract or provable code',
                 },
                 {
                   num: 2,
@@ -157,9 +157,9 @@ export default function DocumentationPage() {
               <li className='flex gap-4'>
                 <span className='font-bold text-emerald-600'>1.</span>
                 <div>
-                  <strong>Paste or Upload Contract</strong>
+                  <strong>Paste or Upload Your Code</strong>
                   <p className='text-gray-600'>
-                    Go to Analyzer and enter your smart contract code
+                    Go to Analyzer and enter your smart contract or provable code
                   </p>
                 </div>
               </li>
@@ -168,7 +168,7 @@ export default function DocumentationPage() {
                 <div>
                   <strong>Run Analysis</strong>
                   <p className='text-gray-600'>
-                    Click "Analyze Contract" to start the security scan
+                    Click "Analyze" to start the security scan
                   </p>
                 </div>
               </li>
@@ -272,7 +272,7 @@ export default function DocumentationPage() {
 
           <div className='bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg p-8 text-white text-center'>
             <h3 className='text-3xl font-bold mb-2'>
-              Ready to Analyze Your Contract?
+              Ready to Analyze Your Code?
             </h3>
             <p className='text-emerald-50 mb-6'>Start with SmartAudit today</p>
             <Link
@@ -293,7 +293,7 @@ export default function DocumentationPage() {
                 <span className='font-bold text-white'>SmartAudit</span>
               </div>
               <p className='text-sm text-gray-400'>
-                AI-powered smart contract security analysis
+                AI-powered security analysis for smart contracts & provable code
               </p>
             </div>
             <div className='text-center md:text-left'>
